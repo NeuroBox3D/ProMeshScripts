@@ -50,10 +50,11 @@ end
 -- read lines from file (each line represents a 2d coordinate)
 local currentIndex = 0
 local subsetIndex = -1
+local lastIndex = 0
 for fileindex, file in pairs(files) do
   local lines = lines_from(file)
-  local lastIndex = (#lines*fileindex) -- number of coordinates, line number used as vertex index
-  subsetIndex = fileindex-1 -- subset index for this tower
+  lastIndex = lastIndex + #lines -- current last index needs to get updated each iteration
+  subsetIndex = fileindex-1 -- subset index for this tower (subsets starts at index 0)
 
   -- read each component of all 2d coordinates (separated by whitespace) and create mesh vertices
   local vertices = {}
@@ -68,15 +69,15 @@ for fileindex, file in pairs(files) do
   ClearSelection(mesh)
   for index, _ in pairs(vertices) do
     if (index < #lines) then
-      SelectVertexByIndex(mesh, index-1 + (#lines*(fileindex-1)))
-      SelectVertexByIndex(mesh, index + (#lines*(fileindex-1)))
+      SelectVertexByIndex(mesh, index-1 + currentIndex)
+      SelectVertexByIndex(mesh, index + currentIndex)
       CreateEdge(mesh, subsetIndex)
       ClearSelection(mesh)
     end
   end
   ClearSelection(mesh)
-  SelectVertexByIndex(mesh, lastIndex-1)
-  SelectVertexByIndex(mesh, subsetIndex)
+  SelectVertexByIndex(mesh, lastIndex-1) -- last vertex
+  SelectVertexByIndex(mesh, currentIndex) -- first vertex
   CreateEdge(mesh, subsetIndex)
   ClearSelection(mesh)
   currentIndex = currentIndex+#lines
