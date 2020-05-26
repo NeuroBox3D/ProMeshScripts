@@ -1,15 +1,8 @@
 --------------------------------------------------------------------------------
--- This script creates a 2d polygonal mesh from provided txt data             --
--- Usage: Copy and paste into ProMesh's live script editor and apply          --
---                                                                            --
--- Note: Make sure file path of the txt file points to a valid location       --
---                                                                            --
--- Author: Stephan Grein                                                      --
--- Date:   05-21-2020                                                         --
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
 -- path to 2d polygon tower
-local file = '/Users/stephan/test.txt'
+local files = {
+   '/Users/stephan/test.txt' -- 1st tower
+}
 
 -- rectangular coordinates
 local v1 = {
@@ -49,65 +42,74 @@ function lines_from(file)
   return lines
 end
 
+  local zCoordinate = 0 -- fix 3rd coordinate
+
 ----------------------------------------------------
---- create tower
+--- create tower(s)
 ----------------------------------------------------
 -- read lines from file (each line represents a 2d coordinate)
-local lines = lines_from(file)
-local lastIndex = #lines -- number of coordinates, line number used as vertex index
-local subsetIndex = 0
-local zCoordinate = 0 -- fix 3rd coordinate
+local currentIndex = 0
+local subsetIndex = -1
+for fileindex, file in pairs(files) do
+  local lines = lines_from(file)
+  local lastIndex = (#lines*fileindex) -- number of coordinates, line number used as vertex index
+  subsetIndex = fileindex-1 -- subset index for this tower
 
--- read each component of all 2d coordinates (separated by whitespace) and create mesh vertices
-local vertices = {}
-for k, v in pairs(lines) do
-  local coordinates = {}
-  for coordinate in v:gmatch("%S+") do table.insert(coordinates, coordinate) end
-  vertex = CreateVertex(mesh, MakeVec(coordinates[1], coordinates[2], zCoordinate), subsetIndex)
-  table.insert(vertices, vertex)
-end
-
--- create mesh edges
-write("Creating polygonal mesh from provided txt file (" .. file .. ") ...")
-ClearSelection(mesh)
-for index, _ in pairs(vertices) do
-  if (index < lastIndex) then
-     SelectVertexByIndex(mesh, index-1)
-     SelectVertexByIndex(mesh, index)
-     CreateEdge(mesh, subsetIndex)
-     ClearSelection(mesh)
+  -- read each component of all 2d coordinates (separated by whitespace) and create mesh vertices
+  local vertices = {}
+  for k, v in pairs(lines) do
+   local coordinates = {}
+    for coordinate in v:gmatch("%S+") do table.insert(coordinates, coordinate) end
+    vertex = CreateVertex(mesh, MakeVec(coordinates[1], coordinates[2], zCoordinate), subsetIndex)
+    table.insert(vertices, vertex)
   end
+  -- create mesh edges
+  write("Creating polygonal mesh from provided txt file (" .. file .. ") ...")
+  ClearSelection(mesh)
+  for index, _ in pairs(vertices) do
+    if (index < #lines) then
+      SelectVertexByIndex(mesh, index-1 + (#lines*(fileindex-1)))
+      SelectVertexByIndex(mesh, index + (#lines*(fileindex-1)))
+      CreateEdge(mesh, subsetIndex)
+      ClearSelection(mesh)
+    end
+  end
+  ClearSelection(mesh)
+  SelectVertexByIndex(mesh, lastIndex-1)
+  SelectVertexByIndex(mesh, subsetIndex)
+  CreateEdge(mesh, subsetIndex)
+  ClearSelection(mesh)
+  currentIndex = currentIndex+#lines
 end
-
-ClearSelection(mesh)
-SelectVertexByIndex(mesh, lastIndex-1)
-SelectVertexByIndex(mesh, subsetIndex)
-CreateEdge(mesh, subsetIndex)
-ClearSelection(mesh)
 
 ----------------------------------------------------
 --- rectangle
 ----------------------------------------------------
-CreateVertex(mesh, MakeVec(v1.x, v1.y, zCoordinate), 2)
-CreateVertex(mesh, MakeVec(v2.x, v2.y, zCoordinate), 2)
-CreateVertex(mesh, MakeVec(v3.x, v3.y, zCoordinate), 2)
-CreateVertex(mesh, MakeVec(v4.x, v4.y, zCoordinate), 2)
+rectIndex=subsetIndex+1 -- subset index for rectangle
+CreateVertex(mesh, MakeVec(v1.x, v1.y, zCoordinate), rectIndex)
+CreateVertex(mesh, MakeVec(v2.x, v2.y, zCoordinate), rectIndex)
+CreateVertex(mesh, MakeVec(v3.x, v3.y, zCoordinate), rectIndex)
+CreateVertex(mesh, MakeVec(v4.x, v4.y, zCoordinate), rectIndex)
 ClearSelection(mesh)
-SelectVertexByIndex(mesh, 6)
-SelectVertexByIndex(mesh, 7)
-CreateEdge(mesh, 3)
+
+----------------------------------------------------
+--- rectangle boundary
+----------------------------------------------------
+SelectVertexByIndex(mesh, currentIndex)
+SelectVertexByIndex(mesh, currentIndex+1)
+CreateEdge(mesh, rectIndex+1)
 ClearSelection(mesh)
-SelectVertexByIndex(mesh, 6)
-SelectVertexByIndex(mesh, 8)
-CreateEdge(mesh, 4)
+SelectVertexByIndex(mesh, currentIndex)
+SelectVertexByIndex(mesh, currentIndex+2)
+CreateEdge(mesh, rectIndex+2)
 ClearSelection(mesh)
-SelectVertexByIndex(mesh, 7)
-SelectVertexByIndex(mesh, 9)
-CreateEdge(mesh, 5)
+SelectVertexByIndex(mesh, currentIndex+1)
+SelectVertexByIndex(mesh, currentIndex+3)
+CreateEdge(mesh, rectIndex+3)
 ClearSelection(mesh)
-SelectVertexByIndex(mesh, 9)
-SelectVertexByIndex(mesh, 8)
-CreateEdge(mesh, 6)
+SelectVertexByIndex(mesh, currentIndex+3)
+SelectVertexByIndex(mesh, currentIndex+2)
+CreateEdge(mesh, rectIndex+4)
 
 ----------------------------------------------------
 --- remove doubles and (isotropic) refinement
@@ -121,26 +123,26 @@ for i=1, numRefinements do Refine(mesh) end
 --- triangulation
 ----------------------------------------------------
 SelectAll(mesh)
-TriangleFill(mesh, true, minAngle, 6)
+TriangleFill(mesh, true, minAngle, rectIndex+5)
 ClearSelection(mesh)
 
 ----------------------------------------------------
 --- rectangle vertices assignment
 ----------------------------------------------------
-SelectVertexByIndex(mesh, 6)
-AssignSubset(mesh, 3)
+SelectVertexByIndex(mesh, currentIndex)
+AssignSubset(mesh, rectIndex+1)
 AssignSubsetColors(mesh)
 ClearSelection(mesh)
-SelectVertexByIndex(mesh, 7)
-AssignSubset(mesh, 2)
+SelectVertexByIndex(mesh, currentIndex+1)
+AssignSubset(mesh, rectIndex+3)
 AssignSubsetColors(mesh)
 ClearSelection(mesh)
-SelectVertexByIndex(mesh, 8)
-AssignSubset(mesh, 5)
+SelectVertexByIndex(mesh, currentIndex+2)
+AssignSubset(mesh, rectIndex)
 AssignSubsetColors(mesh)
 ClearSelection(mesh)
-SelectVertexByIndex(mesh, 9)
-AssignSubset(mesh, 4)
+SelectVertexByIndex(mesh, currentIndex+3)
+AssignSubset(mesh, rectIndex+2)
 
 ----------------------------------------------------
 --- color subsets
@@ -155,17 +157,20 @@ SeparateFacesBySelectedEdges(mesh)
 --- assign tower and box faces to separated subsets
 ----------------------------------------------------
 ClearSelection(mesh)
+subsetOffset=5 -- left,right,top,bottom boundaries...
 SelectSubset(mesh, 0, true, true, true, false)
-SelectSubset(mesh, 6, true, true, true, false)
+SelectSubset(mesh, rectIndex+subsetOffset, true, true, true, false)
 AssignSubset(mesh, 0)
-ClearSelection(mesh)
-SelectSubset(mesh, 1, true, true, true, false)
-CloseSelection(mesh)
-AssignSubset(mesh, 1)
-ClearSelection(mesh)
-SelectSubsetBoundary(mesh, 1, true, true, false)
-CloseSelection(mesh)
-AssignSubset(mesh, 7)
-ClearSelection(mesh)
-EraseEmptySubsets(mesh)
+for i, file in pairs(files) do
+  ClearSelection(mesh)
+  SelectSubset(mesh, 1+(subsetOffset*(i-1)), true, true, true, false)
+  CloseSelection(mesh)
+  AssignSubset(mesh, 1+(subsetOffset*(i-1)))
+  ClearSelection(mesh)
+  SelectSubsetBoundary(mesh, 1+subsetOffset*(i-1), true, true, false)
+  CloseSelection(mesh)
+  AssignSubset(mesh, 1+(subsetOffset*i))
+  ClearSelection(mesh)
+  EraseEmptySubsets(mesh)
+end
 print(" done!")
