@@ -71,7 +71,7 @@ end
 --------------------------------------------------------------------------------
 -- read lines from file (each line represents a 2d coordinate)
 local currentIndex = 0 -- current number of vertices created so far
-local subsetIndex = -1 -- current subset index 
+local subsetIndex = -1 -- current subset index
 local lastIndex = 0 -- index of last vertex
 for fileindex, file in pairs(polygons) do
   write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
@@ -145,84 +145,36 @@ EraseEmptySubsets(mesh)
 for i=1, numRefinements do Refine(mesh) end
 
 --------------------------------------------------------------------------------
---- triangulation                                                            ---
+--- triangulate subsetwise                                                   ---
 --------------------------------------------------------------------------------
+ClearSelection(mesh)
+for i, file in pairs(polygons) do
+  SelectSubset(mesh, i-1, true, true, true, false)
+  -- 4 boundaries and 1 corner subset = 5
+  TriangleFill(mesh, true, minAngle, rectIndex+5+i)
+  ClearSelection(mesh)
+end
+ClearSelection(mesh)
 SelectAll(mesh)
-TriangleFill(mesh, true, minAngle, rectIndex+5) -- 4 boundaries subsets between
-ClearSelection(mesh)
+TriangleFill(mesh, true, minAngle, rectIndex+5+#polygons+1)
 
 --------------------------------------------------------------------------------
---- rectangle vertices assignment                                            ---
+--- subset naming                                                            ---
 --------------------------------------------------------------------------------
-SelectVertexByIndex(mesh, currentIndex)
-AssignSubset(mesh, rectIndex+1)
-AssignSubsetColors(mesh)
-ClearSelection(mesh)
-SelectVertexByIndex(mesh, currentIndex+1)
-AssignSubset(mesh, rectIndex+3)
-AssignSubsetColors(mesh)
-ClearSelection(mesh)
-SelectVertexByIndex(mesh, currentIndex+2)
-AssignSubset(mesh, rectIndex)
-AssignSubsetColors(mesh)
-ClearSelection(mesh)
-SelectVertexByIndex(mesh, currentIndex+3)
-AssignSubset(mesh, rectIndex+2)
-
---------------------------------------------------------------------------------
---- colorize subsets                                                         ---
---------------------------------------------------------------------------------
-AssignSubsetColors(mesh)
-ClearSelection(mesh)
-
---------------------------------------------------------------------------------
---- separate tower volumes                                                   ---
---------------------------------------------------------------------------------
+subsetOffset = 5+#polygons
+SetSubsetName(mesh, rectIndex+5+#polygons+1, "vol")
 for i, file in pairs(polygons) do
-   SelectSubset(mesh, i-1, true, true, false, false)
+   SetSubsetName(mesh, i-1,  "Tower #1 bnd")
+   SetSubsetName(mesh, i+subsetOffset, "Tower #1 vol" .. i+subsetOffset)
 end
-SeparateFacesBySelectedEdges(mesh)
-
---------------------------------------------------------------------------------
---- assign tower and box faces to separated subsets                          ---
---------------------------------------------------------------------------------
-AssignSubset(mesh, 0)
-for i, file in pairs(polygons) do
-  ClearSelection(mesh)
-  SelectSubset(mesh, 1+i-1, true, true, true, false)
-  CloseSelection(mesh)
-  AssignSubset(mesh, 1+i-1)
-  ClearSelection(mesh)
-  SelectSubsetBoundary(mesh, 1+i-1, true, true, false)
-  CloseSelection(mesh)
-  AssignSubset(mesh, 1+subsetOffset+1+i)
-  ClearSelection(mesh)
-  EraseEmptySubsets(mesh)
-end
-
---------------------------------------------------------------------------------
---- assign remaining (non-tower) triangles to volume subset vol              ---
---------------------------------------------------------------------------------
-currentSubset=#polygons+4+1 -- #towers + 4 boundaries + 1 volume subset
-ClearSelection(mesh)
-SelectSubset(mesh, currentSubset, true, true, true, false)
-AssignSubset(mesh, 0)
-
---------------------------------------------------------------------------------
---- assign subset names                                                      ---
---------------------------------------------------------------------------------
-SetSubsetName(mesh, 0, "vol")
-for i, file in pairs(polygons) do
-    SetSubsetName(mesh, i, "Tower #" .. i)
-    SetSubsetName(mesh, i+subsetOffset, "Tower #1 Bnd" .. i+subsetOffset)
-end
-
 SetSubsetName(mesh, #polygons+1, "bnd right")
 SetSubsetName(mesh, #polygons+2, "bnd bottom")
 SetSubsetName(mesh, #polygons+3, "bnd top")
 SetSubsetName(mesh, #polygons+4, "bnd left")
+SetSubsetName(mesh, #polygons, "corners")
 ClearSelection(mesh)
 EraseEmptySubsets(mesh)
+AssignSusbetColors(mesh)
 
 --------------------------------------------------------------------------------
 --- assign grid name                                                         ---
