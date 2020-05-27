@@ -1,8 +1,24 @@
 --------------------------------------------------------------------------------
+-- This script creates a 2d polygonal mesh from provided txt data             --
+-- Usage: Copy and paste into ProMesh's live script editor and apply          --
+--                                                                            --
+-- Note: Make sure file path of the txt file points to a valid location       --
+--                                                                            --
+-- Author: Stephan Grein                                                      --
+-- Date:   05-21-2020                                                         --
+--------------------------------------------------------------------------------
+print("Executing polygonal_mesh_from_txt script...")
+--------------------------------------------------------------------------------
+-- files and parameters                                                      ---
+--------------------------------------------------------------------------------
 -- path to 2d polygon tower
-local files = {
-   '/Users/stephan/test.txt' -- 1st tower
+local polygons = {
+   '/Users/stephan/test.txt', -- 1st tower
+   '/Users/stephan/test2.txt' -- 2nd tower
 }
+
+-- file name where grid will be stored
+local outputFileName = '/Users/stephan/test.ugx'
 
 -- rectangular coordinates
 local v1 = {
@@ -22,38 +38,45 @@ local v4 = {
   y = 50
 } -- top right
 
+ -- fix 3rd coordinate to zeor
+local zCoordinate = 0
 -- number of isotropic refinements of whole edge mesh
 local numRefinements = 2
 -- minimum triangle angle in delaunay triangulation
 local minAngle = 20
+-- remove doubles threshold
+local doublesThreshold = 0.0001
 
+--------------------------------------------------------------------------------
+-- helper functions                                                          ---
+--------------------------------------------------------------------------------
 -- file exists function
-function file_exists(file)
+local function file_exists(file)
   local f = io.open(file, "rb")
   if f then f:close() end
   return f ~= nil
 end
 
 -- read lines from file function
-function lines_from(file)
+local function lines_from(file)
   if not file_exists(file) then return {} end
   lines = {}
   for line in io.lines(file) do lines[#lines + 1] = line end
   return lines
 end
 
-  local zCoordinate = 0 -- fix 3rd coordinate
 
-----------------------------------------------------
---- create tower(s)
-----------------------------------------------------
+--------------------------------------------------------------------------------
+--- create tower(s)                                                          ---
+--------------------------------------------------------------------------------
 -- read lines from file (each line represents a 2d coordinate)
-local currentIndex = 0
-local subsetIndex = -1
-local lastIndex = 0
-for fileindex, file in pairs(files) do
+local currentIndex = 0 -- current number of vertices created so far
+local subsetIndex = -1 -- current subset index 
+local lastIndex = 0 -- index of last vertex
+for fileindex, file in pairs(polygons) do
+  write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
   local lines = lines_from(file)
-  lastIndex = lastIndex + #lines -- current last index needs to get updated each iteration
+  lastIndex = lastIndex + #lines -- current last vertex index needs to get updated each iteration
   subsetIndex = fileindex-1 -- subset index for this tower (subsets starts at index 0)
 
   -- read each component of all 2d coordinates (separated by whitespace) and create mesh vertices
@@ -64,8 +87,8 @@ for fileindex, file in pairs(files) do
     vertex = CreateVertex(mesh, MakeVec(coordinates[1], coordinates[2], zCoordinate), subsetIndex)
     table.insert(vertices, vertex)
   end
+
   -- create mesh edges
-  write("Creating polygonal mesh from provided txt file (" .. file .. ") ...")
   ClearSelection(mesh)
   for index, _ in pairs(vertices) do
     if (index < #lines) then
@@ -76,26 +99,27 @@ for fileindex, file in pairs(files) do
     end
   end
   ClearSelection(mesh)
-  SelectVertexByIndex(mesh, lastIndex-1) -- last vertex
-  SelectVertexByIndex(mesh, currentIndex) -- first vertex
+  SelectVertexByIndex(mesh, lastIndex-1) -- last vertex for current polygon
+  SelectVertexByIndex(mesh, currentIndex) -- first vertex for current polygon
   CreateEdge(mesh, subsetIndex)
   ClearSelection(mesh)
-  currentIndex = currentIndex+#lines
+  currentIndex = currentIndex+#lines -- vertex indices
+  print(" done!")
 end
 
-----------------------------------------------------
---- rectangle
-----------------------------------------------------
-rectIndex=subsetIndex+1 -- subset index for rectangle
+--------------------------------------------------------------------------------
+--- create rectangle                                                         ---
+--------------------------------------------------------------------------------
+rectIndex=subsetIndex+1 -- subset index for rectangle (#towers + 1)
 CreateVertex(mesh, MakeVec(v1.x, v1.y, zCoordinate), rectIndex)
 CreateVertex(mesh, MakeVec(v2.x, v2.y, zCoordinate), rectIndex)
 CreateVertex(mesh, MakeVec(v3.x, v3.y, zCoordinate), rectIndex)
 CreateVertex(mesh, MakeVec(v4.x, v4.y, zCoordinate), rectIndex)
 ClearSelection(mesh)
 
-----------------------------------------------------
---- rectangle boundary
-----------------------------------------------------
+--------------------------------------------------------------------------------
+--- rectangle boundary                                                       ---
+--------------------------------------------------------------------------------
 SelectVertexByIndex(mesh, currentIndex)
 SelectVertexByIndex(mesh, currentIndex+1)
 CreateEdge(mesh, rectIndex+1)
@@ -112,24 +136,24 @@ SelectVertexByIndex(mesh, currentIndex+3)
 SelectVertexByIndex(mesh, currentIndex+2)
 CreateEdge(mesh, rectIndex+4)
 
-----------------------------------------------------
---- remove doubles and (isotropic) refinement
-----------------------------------------------------
+--------------------------------------------------------------------------------
+--- remove doubles and (isotropic) refinement                                ---
+--------------------------------------------------------------------------------
 SelectAll(mesh)
-RemoveDoubles(mesh, 0.0001)
+RemoveDoubles(mesh, doublesThreshold)
 EraseEmptySubsets(mesh)
 for i=1, numRefinements do Refine(mesh) end
 
-----------------------------------------------------
---- triangulation
-----------------------------------------------------
+--------------------------------------------------------------------------------
+--- triangulation                                                            ---
+--------------------------------------------------------------------------------
 SelectAll(mesh)
-TriangleFill(mesh, true, minAngle, rectIndex+5)
+TriangleFill(mesh, true, minAngle, rectIndex+5) -- 4 boundaries subsets between
 ClearSelection(mesh)
 
-----------------------------------------------------
---- rectangle vertices assignment
-----------------------------------------------------
+--------------------------------------------------------------------------------
+--- rectangle vertices assignment                                            ---
+--------------------------------------------------------------------------------
 SelectVertexByIndex(mesh, currentIndex)
 AssignSubset(mesh, rectIndex+1)
 AssignSubsetColors(mesh)
@@ -145,33 +169,64 @@ ClearSelection(mesh)
 SelectVertexByIndex(mesh, currentIndex+3)
 AssignSubset(mesh, rectIndex+2)
 
-----------------------------------------------------
---- color subsets
-----------------------------------------------------
+--------------------------------------------------------------------------------
+--- colorize subsets                                                         ---
+--------------------------------------------------------------------------------
 AssignSubsetColors(mesh)
 ClearSelection(mesh)
 
-SelectSubset(mesh, 0, true, true, false, false)
+--------------------------------------------------------------------------------
+--- separate tower volumes                                                   ---
+--------------------------------------------------------------------------------
+for i, file in pairs(polygons) do
+   SelectSubset(mesh, i-1, true, true, false, false)
+end
 SeparateFacesBySelectedEdges(mesh)
 
-----------------------------------------------------
---- assign tower and box faces to separated subsets
-----------------------------------------------------
-ClearSelection(mesh)
-subsetOffset=5 -- left,right,top,bottom boundaries...
-SelectSubset(mesh, 0, true, true, true, false)
-SelectSubset(mesh, rectIndex+subsetOffset, true, true, true, false)
+--------------------------------------------------------------------------------
+--- assign tower and box faces to separated subsets                          ---
+--------------------------------------------------------------------------------
 AssignSubset(mesh, 0)
-for i, file in pairs(files) do
+for i, file in pairs(polygons) do
   ClearSelection(mesh)
-  SelectSubset(mesh, 1+(subsetOffset*(i-1)), true, true, true, false)
+  SelectSubset(mesh, 1+i-1, true, true, true, false)
   CloseSelection(mesh)
-  AssignSubset(mesh, 1+(subsetOffset*(i-1)))
+  AssignSubset(mesh, 1+i-1)
   ClearSelection(mesh)
-  SelectSubsetBoundary(mesh, 1+subsetOffset*(i-1), true, true, false)
+  SelectSubsetBoundary(mesh, 1+i-1, true, true, false)
   CloseSelection(mesh)
-  AssignSubset(mesh, 1+(subsetOffset*i))
+  AssignSubset(mesh, 1+subsetOffset+1+i)
   ClearSelection(mesh)
   EraseEmptySubsets(mesh)
 end
-print(" done!")
+
+--------------------------------------------------------------------------------
+--- assign remaining (non-tower) triangles to volume subset vol              ---
+--------------------------------------------------------------------------------
+currentSubset=#polygons+4+1 -- #towers + 4 boundaries + 1 volume subset
+ClearSelection(mesh)
+SelectSubset(mesh, currentSubset, true, true, true, false)
+AssignSubset(mesh, 0)
+
+--------------------------------------------------------------------------------
+--- assign subset names                                                      ---
+--------------------------------------------------------------------------------
+SetSubsetName(mesh, 0, "vol")
+for i, file in pairs(polygons) do
+    SetSubsetName(mesh, i, "Tower #" .. i)
+    SetSubsetName(mesh, i+subsetOffset, "Tower #1 Bnd" .. i+subsetOffset)
+end
+
+SetSubsetName(mesh, #polygons+1, "bnd right")
+SetSubsetName(mesh, #polygons+2, "bnd bottom")
+SetSubsetName(mesh, #polygons+3, "bnd top")
+SetSubsetName(mesh, #polygons+4, "bnd left")
+ClearSelection(mesh)
+EraseEmptySubsets(mesh)
+
+--------------------------------------------------------------------------------
+--- assign grid name                                                         ---
+--------------------------------------------------------------------------------
+write("Saving mesh to file '" .. outputFileName .. "'... ")
+SaveMesh(mesh, outputFileName)
+print("done!")
