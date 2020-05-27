@@ -20,6 +20,10 @@ local polygons = {
 -- file name where grid will be stored
 local outputFileName = '/Users/stephan/test.ugx'
 
+-- join corners
+local numBoundaries = 4
+local joinCorners = true
+
 -- rectangular coordinates
 local v1 = {
   x = 50.5,
@@ -164,8 +168,8 @@ TriangleFill(mesh, true, minAngle, rectIndex+5+#polygons+1)
 subsetOffset = 5+#polygons
 SetSubsetName(mesh, rectIndex+5+#polygons+1, "vol")
 for i, file in pairs(polygons) do
-   SetSubsetName(mesh, i-1,  "Tower #1 bnd")
-   SetSubsetName(mesh, i+subsetOffset, "Tower #1 vol" .. i+subsetOffset)
+   SetSubsetName(mesh, i-1,  "Tower #" .. i .. " bnd")
+   SetSubsetName(mesh, i+subsetOffset, "Tower #" .. i .. " vol")
 end
 SetSubsetName(mesh, #polygons+1, "bnd right")
 SetSubsetName(mesh, #polygons+2, "bnd bottom")
@@ -173,8 +177,20 @@ SetSubsetName(mesh, #polygons+3, "bnd top")
 SetSubsetName(mesh, #polygons+4, "bnd left")
 SetSubsetName(mesh, #polygons, "corners")
 ClearSelection(mesh)
+
+--------------------------------------------------------------------------------
+--- join corners to separate boundary subsets                                ---
+--------------------------------------------------------------------------------
+if joinCorners then
+  for i=1, #numBoundaries-1 do
+    SelectSubset(mesh, #polygons+i, true, true, true, false)
+    CloseSelection(mesh)
+    AssignSubset(mesh, #polygons+i)
+    ClearSelection(mesh)
+  end
+end
 EraseEmptySubsets(mesh)
-AssignSusbetColors(mesh)
+AssignSubsetColors(mesh)
 
 --------------------------------------------------------------------------------
 --- assign grid name                                                         ---
