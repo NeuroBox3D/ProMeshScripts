@@ -182,7 +182,7 @@ ClearSelection(mesh)
 --- join corners to separate boundary subsets                                ---
 --------------------------------------------------------------------------------
 if joinCorners then
-  for i=1, #numBoundaries-1 do
+  for i=1, numBoundaries-1 do
     SelectSubset(mesh, #polygons+i, true, true, true, false)
     CloseSelection(mesh)
     AssignSubset(mesh, #polygons+i)
