@@ -189,8 +189,14 @@ if joinCorners then
     ClearSelection(mesh)
   end
 end
+
+--------------------------------------------------------------------------------
+--- clean up grid                                                            ---
+--------------------------------------------------------------------------------
 EraseEmptySubsets(mesh)
 AssignSubsetColors(mesh)
+SelectAll(mesh)
+RemoveDoubleFaces(mesh)
 
 --------------------------------------------------------------------------------
 --- assign grid name                                                         ---
