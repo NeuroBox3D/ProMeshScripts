@@ -20,10 +20,15 @@ local polygons = {
 -- file name where grid will be stored
 local outputFileName = '/Users/stephan/test.ugx'
 
--- join corners
+-- there are four boundaries: top, bottom, left, right
 local numBoundaries = 4
+
+-- join corners of rectangle to one of the four boundaries
 local joinCorners = true
 
+--------------------------------------------------------------------------------
+-- coordinates                                                               ---
+--------------------------------------------------------------------------------
 -- rectangular coordinates
 local v1 = {
   x = 50.5,
@@ -42,14 +47,21 @@ local v4 = {
   y = 50
 } -- top right
 
- -- fix 3rd coordinate to zeor
+ -- fix 3rd coordinate to zero
 local zCoordinate = 0
--- number of isotropic refinements of whole edge mesh
+
+--------------------------------------------------------------------------------
+-- refinement and triangulation settings                                     ---
+--------------------------------------------------------------------------------
+-- number of isotropic refinements of whole mesh
 local numRefinements = 2
--- minimum triangle angle in delaunay triangulation
-local minAngle = 20
+-- minimum triangle angle in delaunay triangulation for tower 
+local minAngleTower = 30
+-- minimum triangle angle in delaunay triangulation for vol
+local minAngleVol = 30
 -- remove doubles threshold
 local doublesThreshold = 0.0001
+
 
 --------------------------------------------------------------------------------
 -- helper functions                                                          ---
@@ -68,7 +80,6 @@ local function lines_from(file)
   for line in io.lines(file) do lines[#lines + 1] = line end
   return lines
 end
-
 
 --------------------------------------------------------------------------------
 --- create tower(s)                                                          ---
@@ -146,7 +157,7 @@ CreateEdge(mesh, rectIndex+4)
 SelectAll(mesh)
 RemoveDoubles(mesh, doublesThreshold)
 EraseEmptySubsets(mesh)
-for i=1, numRefinements do Refine(mesh) end
+for i=1, numRefinements do SelectAll(mesh) Refine(mesh) end
 
 --------------------------------------------------------------------------------
 --- triangulate subsetwise                                                   ---
@@ -155,12 +166,12 @@ ClearSelection(mesh)
 for i, file in pairs(polygons) do
   SelectSubset(mesh, i-1, true, true, true, false)
   -- 4 boundaries and 1 corner subset = 5
-  TriangleFill(mesh, true, minAngle, rectIndex+5+i)
+  TriangleFill(mesh, true, minAngleTower, rectIndex+5+i)
   ClearSelection(mesh)
 end
 ClearSelection(mesh)
 SelectAll(mesh)
-TriangleFill(mesh, true, minAngle, rectIndex+5+#polygons+1)
+TriangleFill(mesh, true, minAngleVol, rectIndex+5+#polygons+1)
 
 --------------------------------------------------------------------------------
 --- subset naming                                                            ---
