@@ -162,6 +162,10 @@ for i=1, numRefinements do SelectAll(mesh) Refine(mesh) end
 --------------------------------------------------------------------------------
 --- triangulate subsetwise                                                   ---
 --------------------------------------------------------------------------------
+-- Note: This *might* be problematic if minAngle for triangulation are too high
+--       Previously we used SeparateFacesBySelectedEdges which did not always
+--       yield correct results. One might think about adding this as a second
+--       option for the user to generate the triangulation of such meshes
 ClearSelection(mesh)
 for i, file in pairs(polygons) do
   SelectSubset(mesh, i-1, true, true, true, false)
