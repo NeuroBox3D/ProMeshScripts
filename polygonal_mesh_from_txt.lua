@@ -53,7 +53,7 @@ local zCoordinate = 0
 --------------------------------------------------------------------------------
 -- refinement and triangulation settings                                     ---
 --------------------------------------------------------------------------------
--- number of isotropic refinements of mesh, might be increases for many polygons
+-- number of isotropic refinements of mesh, might be increased for many polygons
 local numRefinements = 2
 -- final minimum triangle angle in delaunay triangulation for tower 
 local minAngleTower = 30
