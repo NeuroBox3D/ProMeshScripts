@@ -53,15 +53,14 @@ local zCoordinate = 0
 --------------------------------------------------------------------------------
 -- refinement and triangulation settings                                     ---
 --------------------------------------------------------------------------------
--- number of isotropic refinements of whole mesh
+-- number of isotropic refinements of mesh, might be increases for many polygons
 local numRefinements = 2
--- minimum triangle angle in delaunay triangulation for tower 
+-- final minimum triangle angle in delaunay triangulation for tower 
 local minAngleTower = 30
--- minimum triangle angle in delaunay triangulation for vol
+-- final minimum triangle angle in delaunay triangulation for vol
 local minAngleVol = 30
 -- remove doubles threshold
 local doublesThreshold = 0.0001
-
 
 --------------------------------------------------------------------------------
 -- helper functions                                                          ---
@@ -162,12 +161,16 @@ for i=1, numRefinements do SelectAll(mesh) Refine(mesh) end
 --------------------------------------------------------------------------------
 --- triangulate subsetwise                                                   ---
 --------------------------------------------------------------------------------
--- Note: This *might* be problematic if minAngle for triangulation are too high
---       Previously we used SeparateFacesBySelectedEdges which did not always
---       yield correct results. One might think about adding this as a second
---       option for the user to generate the triangulation of such meshes.
---       Or automatically check if TriangleFill(mesh) was successfull, if not
---       we fall back to the SeparateFacesBySelectedEdges strategy
+-- Note: This *might* be problematic if the minimum angle for triangulation is
+--       too high for the initial triangulation. Thus we first triangulate the
+--       mesh piecewise with a small minimum angle (5), then improve tringulation
+--       later with a final larger minimum angle (20 or 30 is suggested for now).
+--       Another option: Triangulating the whole mesh with a high angle (20 or 30)
+--       and use SeparateFacesBySelectedEdges to separate the face subsets, but
+--       SeparateFacesBySelectedEdges does not always yield a consistent result.
+--       The piecewise triangulation approach might make it necessary to refine
+--       the non-triangulated edge set before pw. triangulation to be successful!
+--       The corresponding parameter is numRefinements and can be set on the top.
 ClearSelection(mesh)
 for i, file in pairs(polygons) do
   SelectSubset(mesh, i-1, true, true, true, false)
@@ -214,6 +217,19 @@ EraseEmptySubsets(mesh)
 AssignSubsetColors(mesh)
 SelectAll(mesh)
 RemoveDoubleFaces(mesh)
+ClearSelection(mesh)
+
+--------------------------------------------------------------------------------
+--- improve triangulation                                                    ---
+--------------------------------------------------------------------------------
+SelectSubset(mesh, subsetOffset+#polygons-1, true, true, true, false)
+Retriangulate(mesh, minAngleVol)
+ClearSelection(mesh)
+for i=subsetOffset, subsetOffset+#polygons-1 do
+  SelectSubset(mesh, i-1, true, true, true, false)
+  Retriangulate(mesh, minAngleTower)
+  ClearSelection(mesh)
+end
 
 --------------------------------------------------------------------------------
 --- assign grid name                                                         ---
