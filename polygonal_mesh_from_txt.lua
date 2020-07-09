@@ -30,7 +30,7 @@ local joinCorners = true
 local numSmoothingSteps = 1
 
 -- alpha
-local alphaSmoothing = 0.1
+local smoothingAlpha = 0.1
 
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
