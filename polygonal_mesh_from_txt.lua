@@ -120,7 +120,7 @@ for fileindex, file in pairs(polygons) do
   end
   ClearSelection(mesh)
   SelectAll(mesh)
-  LaplacianSmoothing(mesh, smoothingAlpha, numSmoothingSteps)
+  LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
   ClearSelection(mesh)
   SelectVertexByIndex(mesh, lastIndex-1) -- last vertex for current polygon
   SelectVertexByIndex(mesh, currentIndex) -- first vertex for current polygon
