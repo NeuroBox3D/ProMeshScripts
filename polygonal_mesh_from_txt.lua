@@ -26,6 +26,12 @@ local numBoundaries = 4
 -- join corners of rectangle to one of the four boundaries
 local joinCorners = true
 
+-- number of smoothing steps
+local numSmoothingSteps = 1
+
+-- alpha
+local alphaSmoothing = 0.1
+
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
 --------------------------------------------------------------------------------
@@ -112,6 +118,9 @@ for fileindex, file in pairs(polygons) do
       ClearSelection(mesh)
     end
   end
+  ClearSelection(mesh)
+  SelectAll(mesh)
+  LaplacianSmoothing(mesh, smoothingAlpha, numSmoothingSteps)
   ClearSelection(mesh)
   SelectVertexByIndex(mesh, lastIndex-1) -- last vertex for current polygon
   SelectVertexByIndex(mesh, currentIndex) -- first vertex for current polygon
