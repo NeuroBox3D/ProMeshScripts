@@ -32,6 +32,9 @@ local numSmoothingSteps = 1
 -- alpha
 local smoothingAlpha = 0.1
 
+-- pre refinements of single polygons / towers
+local numPreRefinements = 1
+
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
 --------------------------------------------------------------------------------
@@ -120,13 +123,19 @@ for fileindex, file in pairs(polygons) do
   end
   ClearSelection(mesh)
   SelectAll(mesh)
-  LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
-  ClearSelection(mesh)
   SelectVertexByIndex(mesh, lastIndex-1) -- last vertex for current polygon
   SelectVertexByIndex(mesh, currentIndex) -- first vertex for current polygon
   CreateEdge(mesh, subsetIndex)
-  ClearSelection(mesh)
   currentIndex = currentIndex+#lines -- vertex indices
+  
+  currentNumberOfVertices = #lines -- number of vertices in unrefined polyon
+  for i=1, numPreRefinements do 
+     Refine(mesh)
+     currentIndex = currentIndex+currentNumberOfVertices
+     currentNumberOfVertices = currentNumberOfVertices + currentNumberOfVertices*i
+  end
+  LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
+  ClearSelection(mesh)
   print(" done!")
 end
 
