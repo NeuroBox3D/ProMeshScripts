@@ -126,15 +126,6 @@ for fileindex, file in pairs(polygons) do
   SelectVertexByIndex(mesh, currentIndex) -- first vertex for current polygon
   CreateEdge(mesh, subsetIndex)
   currentIndex = currentIndex+#lines -- vertex indices
-  
-  currentNumberOfVertices = #lines -- number of vertices in unrefined polyon
-  for i=1, numPreRefinements do 
-     Refine(mesh)
-     currentIndex = currentIndex+currentNumberOfVertices
-     lastIndex = lastIndex + currentNumberOfVertices
-     currentNumberOfVertices = currentNumberOfVertices + currentNumberOfVertices*i
-  end
-  LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
   ClearSelection(mesh)
   print(" done!")
 end
@@ -167,6 +158,18 @@ ClearSelection(mesh)
 SelectVertexByIndex(mesh, currentIndex+3)
 SelectVertexByIndex(mesh, currentIndex+2)
 CreateEdge(mesh, rectIndex+4)
+ClearSelection(mesh)
+
+--------------------------------------------------------------------------------
+--- pre-refien only towers, then apply Laplacian smoothing                   ---
+--------------------------------------------------------------------------------
+for fileindex, file in pairs(polygons) do
+  SelectSubset(mesh, fileindex-1, true, true, true, false)
+  for i=1, i=numPreRefinements do
+     Refine(mesh)
+  end
+  LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
+end
 
 --------------------------------------------------------------------------------
 --- remove doubles and (isotropic) refinement                                ---
