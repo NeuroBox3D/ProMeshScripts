@@ -131,6 +131,7 @@ for fileindex, file in pairs(polygons) do
   for i=1, numPreRefinements do 
      Refine(mesh)
      currentIndex = currentIndex+currentNumberOfVertices
+     lastIndex = lastIndex + currentNumberOfVertices
      currentNumberOfVertices = currentNumberOfVertices + currentNumberOfVertices*i
   end
   LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
