@@ -164,7 +164,7 @@ CreateEdge(mesh, rectIndex+4)
 ClearSelection(mesh)
 
 --------------------------------------------------------------------------------
---- pre-refien only towers, then apply Laplacian smoothing                   ---
+--- pre-refine only towers, then apply Laplacian smoothing                   ---
 --------------------------------------------------------------------------------
 for fileindex, file in pairs(polygons) do
   SelectSubset(mesh, fileindex-1, true, true, true, false)
@@ -172,6 +172,7 @@ for fileindex, file in pairs(polygons) do
      Refine(mesh)
   end
   LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
+  ClearSelection(mesh)
 end
 
 --------------------------------------------------------------------------------
