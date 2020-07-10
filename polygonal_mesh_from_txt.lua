@@ -26,13 +26,16 @@ local numBoundaries = 4
 -- join corners of rectangle to one of the four boundaries
 local joinCorners = true
 
+--------------------------------------------------------------------------------
+-- pre-refinement and smoothing parameters for tower
+--------------------------------------------------------------------------------
 -- number of smoothing steps
 local numSmoothingSteps = 1
 
 -- alpha
 local smoothingAlpha = 0.1
 
--- pre refinements of single polygons / towers
+-- pre refinements of single polygons / towers only
 local numPreRefinements = 1
 
 --------------------------------------------------------------------------------
