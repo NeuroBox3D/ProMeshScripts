@@ -122,7 +122,6 @@ for fileindex, file in pairs(polygons) do
     end
   end
   ClearSelection(mesh)
-  SelectAll(mesh)
   SelectVertexByIndex(mesh, lastIndex-1) -- last vertex for current polygon
   SelectVertexByIndex(mesh, currentIndex) -- first vertex for current polygon
   CreateEdge(mesh, subsetIndex)
