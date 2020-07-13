@@ -8,8 +8,15 @@
 -- Date:   05-21-2020                                                         --
 --------------------------------------------------------------------------------
 print("Executing polygonal_mesh_from_txt script...")
+
 --------------------------------------------------------------------------------
--- files and parameters                                                      ---
+--- Clear mesh                                                               ---
+--------------------------------------------------------------------------------
+SelectAll(mesh)
+EraseSelectedElements(mesh, true, true, true)
+
+--------------------------------------------------------------------------------
+--- files and parameters                                                     ---
 --------------------------------------------------------------------------------
 -- path to 2d polygon tower
 local polygons = {
@@ -27,7 +34,7 @@ local numBoundaries = 4
 local joinCorners = true
 
 --------------------------------------------------------------------------------
--- pre-refinement and smoothing parameters for tower
+--- pre-refinement and smoothing parameters for tower                        ---
 --------------------------------------------------------------------------------
 -- number of smoothing steps
 local numSmoothingSteps = 1
@@ -63,7 +70,7 @@ local v4 = {
 local zCoordinate = 0
 
 --------------------------------------------------------------------------------
--- refinement and triangulation settings                                     ---
+--- refinement and triangulation settings                                    ---
 --------------------------------------------------------------------------------
 -- number of isotropic refinements of mesh, might be increased for many polygons
 local numRefinements = 2
@@ -75,7 +82,7 @@ local minAngleVol = 30
 local doublesThreshold = 0.0001
 
 --------------------------------------------------------------------------------
--- helper functions                                                          ---
+--- helper functions                                                         ---
 --------------------------------------------------------------------------------
 -- file exists function
 local function file_exists(file)
@@ -168,7 +175,7 @@ ClearSelection(mesh)
 --------------------------------------------------------------------------------
 for fileindex, file in pairs(polygons) do
   SelectSubset(mesh, fileindex-1, true, true, true, false)
-  for i=1, i=numPreRefinements do
+  for i=1, numPreRefinements do
      Refine(mesh)
   end
   LaplacianSmooth(mesh, smoothingAlpha, numSmoothingSteps)
