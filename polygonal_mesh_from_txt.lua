@@ -20,8 +20,8 @@ EraseSelectedElements(mesh, true, true, true)
 --------------------------------------------------------------------------------
 -- path to 2d polygon tower
 local polygons = {
-   '/Users/stephan/test.txt', -- 1st tower
-   '/Users/stephan/test2.txt' -- 2nd tower
+   '/Users/stephan/Downloads/tower1.txt', -- 1st tower
+   '/Users/stephan/Downloads/tower2.txt' -- 2nd tower
 }
 
 -- file name where grid will be stored
@@ -43,27 +43,27 @@ local numSmoothingSteps = 1
 local smoothingAlpha = 0.1
 
 -- pre refinements of single polygons / towers only
-local numPreRefinements = 1
+local numPreRefinements = 2
 
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
 --------------------------------------------------------------------------------
 -- rectangular coordinates
 local v1 = {
-  x = 50.5,
-  y = -50
+  x = 0,
+  y = -118.57
 } -- bottom left
 local v2 = {
-  x =149.5,
-  y = -50
+  x = 122.9,
+  y = -118.57
 } -- bottom right
 local v3 = {
-  x =50.5,
-  y = 50
+  x = 0,
+  y = 0
 } -- top left
 local v4 = {
-  x =149.5,
-  y = 50
+  x = 122.9,
+  y = 0
 } -- top right
 
  -- fix 3rd coordinate to zero
@@ -75,9 +75,9 @@ local zCoordinate = 0
 -- number of isotropic refinements of mesh, might be increased for many polygons
 local numRefinements = 2
 -- final minimum triangle angle in delaunay triangulation for tower 
-local minAngleTower = 30
+local minAngleTower = 25
 -- final minimum triangle angle in delaunay triangulation for vol
-local minAngleVol = 30
+local minAngleVol = 25
 -- remove doubles threshold
 local doublesThreshold = 0.0001
 
