@@ -15,6 +15,8 @@ Run the following command string:
 `ugshell -ex polygonal_mesh_from_txt.lua`.
 
 The file should be stored in a `.ugx` file on your disk with specified output name.
+Parameters can be made available to the command line user by using the scripts
+`ug_util.lua` provided in `ugbase/scripts`.
 
 ### Version
-Scripts have been tested with ProMesh 4.3.17.
+Scripts have been tested with ProMesh 4.3.17 and ugshell (commit f46bab4).
