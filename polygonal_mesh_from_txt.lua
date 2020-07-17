@@ -7,12 +7,30 @@
 -- Author: Stephan Grein                                                      --
 -- Date:   05-21-2020                                                         --
 --------------------------------------------------------------------------------
-mesh = Mesh()
 print("Executing polygonal_mesh_from_txt script...")
+
+--------------------------------------------------------------------------------
+--- Load CLI helpers and check if ug4 is available
+--------------------------------------------------------------------------------
+UG_AVAILABLE = os.getenv("UGROOT")
+
+if UG_AVAILABLE ~= nil then
+  ug_load_script("ug_util.lua")
+end
+
+local function get_param(str, default)
+  if UG_AVAILABLE then
+    loadstring("param=" .. str)()
+    return param
+  else
+    return default
+  end
+end
 
 --------------------------------------------------------------------------------
 --- Clear mesh                                                               ---
 --------------------------------------------------------------------------------
+mesh = Mesh()
 SelectAll(mesh)
 EraseSelectedElements(mesh, true, true, true)
 
@@ -21,66 +39,73 @@ EraseSelectedElements(mesh, true, true, true)
 --------------------------------------------------------------------------------
 -- path to 2d polygon tower
 local polygons = {
-   '/Users/stephan/Downloads/tower1.txt', -- 1st tower
-   '/Users/stephan/Downloads/tower2.txt' -- 2nd tower
+   get_param('util.GetParam("-tower1", "/Users/stephan/Downloads/tower1.txt")', nil),
+   get_param('util.GetParam("-tower1", "/Users/stephan/Downloads/tower2.txt")', nil)
 }
 
+for index, file in pairs(polygons) do
+  if not file then
+    error("Please specify correct tower file for tower #" .. index)
+  end
+end
+
 -- file name where grid will be stored
-local outputFileName = '/Users/stephan/test.ugx'
+local outputFileName = get_param('util.GetParam("-outputFileName", nil)', nil)
+if not outputFileName then error("Please supply a valid output file name") end
 
 -- there are four boundaries: top, bottom, left, right
-local numBoundaries = 4
+local numBoundaries = get_param('util.GetParamNumber("-numBoundaries", 4)', 4)
 
--- join corners of rectangle to one of the four boundaries
-local joinCorners = true
+-- join corners of rectangle to one of the four bondaries
+local joinCorners = get_param('util.HasParamOption("-joinCorners", true)', true)
 
 --------------------------------------------------------------------------------
 --- pre-refinement and smoothing parameters for tower                        ---
 --------------------------------------------------------------------------------
 -- number of smoothing steps
-local numSmoothingSteps = 1
+local numSmoothingSteps = get_param('util.GetParamNumber("numSmoothingSteps", 1)', 1)
 
 -- alpha
-local smoothingAlpha = 0.1
+local smoothingAlpha = get_param('util.GetParamNumber("-smoothingAlpha", 0.1)', 0.1)
 
 -- pre refinements of single polygons / towers only
-local numPreRefinements = 2
+local numPreRefinements = get_param('util.GetParamNumber("-numPreRefinements", 2)', 2)
 
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
 --------------------------------------------------------------------------------
 -- rectangular coordinates
 local v1 = {
-  x = 0,
-  y = -118.57
+  x = get_param('util.GetParamNumber("-v1x", 0)', 0),
+  y = get_param('util.GetParamNumber("-v1y", -118.57)', -118.57)
 } -- bottom left
 local v2 = {
-  x = 122.9,
-  y = -118.57
+  x = get_param('util.GetParamNumber("-v2x", 122.9)', 122.9),
+  y = get_param('util.GetParamNumber("-v2y", -118.57)', -118.57)
 } -- bottom right
 local v3 = {
-  x = 0,
-  y = 0
+  x = get_param('util.GetParamNumber("-v3x", 0)', 0),
+  y = get_param('util.GetParamNumber("-v3y", 0)', 0)
 } -- top left
 local v4 = {
-  x = 122.9,
-  y = 0
+  x = get_param('util.GetParamNumber("-v4x", 122.9)', 122.9),
+  y = get_param('util.GetParamNumber("-v4y", 0)', 0)
 } -- top right
 
  -- fix 3rd coordinate to zero
-local zCoordinate = 0
+local zCoordinate = get_param('util.GetParamNumber("-zCoordinate", 0)', 0)
 
 --------------------------------------------------------------------------------
 --- refinement and triangulation settings                                    ---
 --------------------------------------------------------------------------------
 -- number of isotropic refinements of mesh, might be increased for many polygons
-local numRefinements = 2
+local numRefinements = get_param('util.GetParamNumber("-numRefinements", 2)',2)
 -- final minimum triangle angle in delaunay triangulation for tower 
-local minAngleTower = 25
+local minAngleTower = get_param('util.GetParamNumber("-minAngleTower", 25)', 25)
 -- final minimum triangle angle in delaunay triangulation for vol
-local minAngleVol = 25
+local minAngleVol = get_param('util.GetParamNumber("-minAngleVol", 25)', 25)
 -- remove doubles threshold
-local doublesThreshold = 0.0001
+local doublesThreshold = get_param('util.GetParamNumber("-doubleThreshold", 0.0001)', 0.0001)
 
 --------------------------------------------------------------------------------
 --- helper functions                                                         ---
