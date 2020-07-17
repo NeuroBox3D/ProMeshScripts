@@ -13,10 +13,7 @@ print("Executing polygonal_mesh_from_txt script...")
 --- Load CLI helpers and check if ug4 is available
 --------------------------------------------------------------------------------
 UG_AVAILABLE = os.getenv("UGROOT")
-
-if UG_AVAILABLE ~= nil then
-  ug_load_script("ug_util.lua")
-end
+if UG_AVAILABLE ~= nil then ug_load_script("ug_util.lua") end
 
 local function get_param(str, default)
   if UG_AVAILABLE then
