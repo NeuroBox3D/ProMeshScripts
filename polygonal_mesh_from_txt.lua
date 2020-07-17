@@ -40,15 +40,19 @@ local polygons = {
    get_param('util.GetParam("-tower1", "/Users/stephan/Downloads/tower2.txt")', nil)
 }
 
+
 for index, file in pairs(polygons) do
   if not file then
-    error("Please specify correct tower file for tower #" .. index)
+     error("Please specify correct tower file for tower #" .. index)
   end
 end
 
 -- file name where grid will be stored
 local outputFileName = get_param('util.GetParam("-outputFileName", nil)', nil)
-if not outputFileName then error("Please supply a valid output file name") end
+if not outputFileName then 
+  error("Please supply a valid output file name")
+end
+
 
 -- there are four boundaries: top, bottom, left, right
 local numBoundaries = get_param('util.GetParamNumber("-numBoundaries", 4)', 4)
@@ -67,6 +71,7 @@ local smoothingAlpha = get_param('util.GetParamNumber("-smoothingAlpha", 0.1)', 
 
 -- pre refinements of single polygons / towers only
 local numPreRefinements = get_param('util.GetParamNumber("-numPreRefinements", 2)', 2)
+
 
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
