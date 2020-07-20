@@ -11,18 +11,52 @@ print("Executing polygonal_mesh_from_txt script...")
 print()
 
 --------------------------------------------------------------------------------
---- Load CLI helpers and check if ug4 is available
+--- Load CLI helpers if ug is available
 --------------------------------------------------------------------------------
 UG_AVAILABLE = os.getenv("UGROOT")
 if UG_AVAILABLE ~= nil then ug_load_script("ug_util.lua") end
 
-local function get_param(str, default)
+--------------------------------------------------------------------------------
+--- helper functions                                                         ---
+--------------------------------------------------------------------------------
+-- file exists function
+local function file_exists(file)
+  local f = io.open(file, "rb")
+  if f then f:close() end
+  return f ~= nil
+end
+
+-- read lines from file function
+local function lines_from(file)
+  if not file_exists(file) then return {} end
+  lines = {}
+  for line in io.lines(file) do lines[#lines + 1] = line end
+  return lines
+end
+
+-- general get param function for ProMesh and ugshell
+function get_param(str, default)
   if UG_AVAILABLE then
     loadstring("param=" .. str)()
     return param
   else
-    return default
+  return default
   end
+end
+
+-- emulate scan directory function (one does not want to include additional dependencies)
+local function scandir(directory)
+  local function linux()
+    local pathSep = package.config:sub(1,1) -- '/' for Linux/OSX and '\\' for Windows
+    if string.find(pathSep, '/') then return true end
+    return false
+  end
+
+  local tmpFile = os.tmpname()
+  local cmd = linux() and 'find ' .. directory .. ' -iname ' .. '"*.txt"' .. ' > ' .. tmpFile
+                      or 'dir "'..directory..'" /b /ad >' .. tmpFile
+  os.execute(cmd)
+  return lines_from(tmpFile)
 end
 
 --------------------------------------------------------------------------------
@@ -35,14 +69,12 @@ EraseSelectedElements(mesh, true, true, true)
 --------------------------------------------------------------------------------
 --- files and parameters                                                     ---
 --------------------------------------------------------------------------------
--- path to 2d polygon tower
-local polygons = {
-   get_param('util.GetParam("-tower1", "/Users/stephan/Downloads/tower1.txt", "1st tower")', nil),
-   get_param('util.GetParam("-tower2", "/Users/stephan/Downloads/tower2.txt", "2nd tower")', nil)
-}
 
 -- request help or not
-help = get_param('util.HasParamOption("-helpMe", false, "Usage")', false)
+local help = get_param('util.HasParamOption("-helpMe", false, "Usage")', false)
+
+-- local input folder
+local inputFolder = get_param('util.GetParam("-inputFolder", nil, "Input folder containing towers")', nil)
 
 -- file name where grid will be stored
 local outputFileName = get_param('util.GetParam("-outputFileName", nil, "File name to output UGX")', nil)
@@ -100,42 +132,38 @@ local minAngleTower = get_param('util.GetParamNumber("-minAngleTower", 25, "Dihe
 local minAngleVol = get_param('util.GetParamNumber("-minAngleVol", 25, "Dihedral for volumes")', 25)
 -- remove doubles threshold
 local doublesThreshold = get_param('util.GetParamNumber("-doubleThreshold", 0.0001, "Double removal threshold")', 0.0001)
+-- 2d polygons
+local polygons = { }
 
 if help then
-  util.PrintHelp()
+  -- only if ugshell is available, help can be printed.
+  if (UG_AVAILABLE) then util.PrintHelp() end
 else
    --------------------------------------------------------------------------------
    --- parameter validation                                                     ---
    --------------------------------------------------------------------------------
+   if not inputFolder then
+      if (UG_AVAILABLE) then util.PrintHelp() end
+      error("Please provide input folder")
+   end
+
+  for k, v in pairs(scandir(inputFolder)) do
+    str = 'param=get_param(\'util.GetParam(\"-tower' .. k .. "\"," .. "\"" .. v
+             .. '", ' .. '"' .. "Tower # " .. k .. "\")', nil)"
+    loadstring(str)()
+    table.insert(polygons, param)
+  end
+
    for index, file in pairs(polygons) do
      if not file then
-        util.PrintHelp()
+        if (UG_AVAILABLE) then util.PrintHelp() end
         error("Please specify correct tower file for tower #" .. index)
      end
    end
 
    if not outputFileName then 
-       util.PrintHelp()
+       if (UG_AVAILABLE) then util.PrintHelp() end
        error("Please supply a valid output file name")
-   end
-
-
-   --------------------------------------------------------------------------------
-   --- helper functions                                                         ---
-   --------------------------------------------------------------------------------
-   -- file exists function
-   local function file_exists(file)
-     local f = io.open(file, "rb")
-     if f then f:close() end
-     return f ~= nil
-   end
-
-   -- read lines from file function
-   local function lines_from(file)
-     if not file_exists(file) then return {} end
-     lines = {}
-     for line in io.lines(file) do lines[#lines + 1] = line end
-     return lines
    end
 
    --------------------------------------------------------------------------------
