@@ -14,7 +14,7 @@
 Run the following command string:
 `ugshell -ex polygonal_mesh_from_txt.lua -helpMe` to show usage:
 
-`Executing polygonal_mesh_from_txt script...
+```Executing polygonal_mesh_from_txt script...
  (number) -doubleThreshold   = 0.0001 : Double removal threshold (default = 0.0001)
  
  [option] -helpMe            = true :  (default = false)
@@ -58,7 +58,7 @@ Run the following command string:
  (number) -zCoordinate       = 0 : Fixed z coordinate (default = 0)
  
  (number) numSmoothingSteps  = 1 : Number of smoothing steps (default = 1)
-`
+```
 
 
 The file should be stored in a `.ugx` file on your disk with specified output name.
