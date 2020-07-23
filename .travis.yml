@@ -35,7 +35,7 @@ before_script:
   - ../ughub/ughub install ugcore ProMesh
   - mkdir -p BUILD
   - cd BUILD
-  - cmake ../ -DTARGET=ugshell -DLAPACK=OFF -DBLAS=OFF -DDIM=ALL -DProMesh=ON
+  - cmake ../ -DTARGET=ugshell -DLAPACK=OFF -DBLAS=OFF -DProMesh=ON -DDIM="2;3" -DCPU=1
   
 script:
     - travis_wait 45 make -j2
