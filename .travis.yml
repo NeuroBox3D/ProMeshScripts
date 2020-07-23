@@ -1,0 +1,43 @@
+# run in container
+sudo: false
+
+addons:
+    apt:
+      packages:
+       - make
+       - cmake-data
+       - cmake
+      
+git:
+  depth: false    
+  
+language: cpp
+
+compiler:
+    - gcc
+    - clang
+
+os:
+  - linux
+  - osx
+  
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CXXFLAGS="-stdlib=libc++"; fi
+
+before_script:
+  - mkdir -p travis_root && cd travis_root
+  - rm -rf ughub
+  - git clone https://www.github.com/UG4/ughub
+  - mkdir ug4 
+  - cd ug4
+  - ../ughub/ughub init .
+  - ../ughub/ughub install ugcore ProMesh
+  - mkdir -p BUILD
+  - cd BUILD
+  - cmake ../ -DTARGET=ugshell -DLAPACK=OFF -DBLAS=OFF -DDIM=ALL -DProMesh=ON
+  
+script:
+    - travis_wait 45 make -j2
+    - curl -O "https://raw.githubusercontent.com/NeuroBox3D/ProMeshScripts/master/polygonal_mesh_from_txt.lua"
+    - ../bin/ugshell -ex "polygonal_mesh_from_txt.lua -helpMe"
