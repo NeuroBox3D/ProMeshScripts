@@ -144,7 +144,7 @@ else
    --------------------------------------------------------------------------------
    if not inputFolder then
       if (UG_AVAILABLE) then util.PrintHelp() end
-      error("Please provide input folder")
+      print("Please provide a valid input folder")
    end
 
   for k, v in pairs(scandir(inputFolder)) do
@@ -157,13 +157,13 @@ else
    for index, file in pairs(polygons) do
      if not file then
         if (UG_AVAILABLE) then util.PrintHelp() end
-        error("Please specify correct tower file for tower #" .. index)
+          print("Please provide a valid tower file for tower #" .. index)
      end
    end
 
    if not outputFileName then 
        if (UG_AVAILABLE) then util.PrintHelp() end
-       error("Please supply a valid output file name")
+          print("Please provide a valid output file name")
    end
 
    --------------------------------------------------------------------------------
