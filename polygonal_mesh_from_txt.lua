@@ -145,6 +145,7 @@ else
    if not inputFolder then
       if (UG_AVAILABLE) then util.PrintHelp() end
       print("Please provide a valid input folder")
+      os.exit()
    end
 
   for k, v in pairs(scandir(inputFolder)) do
@@ -158,12 +159,15 @@ else
      if not file then
         if (UG_AVAILABLE) then util.PrintHelp() end
           print("Please provide a valid tower file for tower #" .. index)
+          os.exit()
      end
    end
 
    if not outputFileName then 
        if (UG_AVAILABLE) then util.PrintHelp() end
           print("Please provide a valid output file name")
+          return
+          os.exit()
    end
 
    --------------------------------------------------------------------------------
