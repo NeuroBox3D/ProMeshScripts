@@ -1,6 +1,9 @@
 # ProMeshScripts
 - `polygonal_mesh_from_txt` - creates 2d polygonal mesh from plain text files in ProMesh
 
+## Build status
+[![Build Status](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
+
 ## Parameters
 - Documented inline
 
@@ -67,3 +70,4 @@ Parameters can be made available to the command line user by using the scripts
 
 ### Version
 Scripts have been tested with ProMesh 4.3.17 and ugshell (commit f46bab4).
+
