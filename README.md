@@ -1,11 +1,21 @@
 # ProMeshScripts
-- `polygonal_mesh_from_txt` - creates 2d polygonal mesh from plain text files in ProMesh
+- `polygonal_mesh_from_txt` - creates 2d polygonal meshes from plain text files.
+
+Biofilm grid generation requires four 2d point coordinates specifying the bounding box of the biofilm as a rectangle. Additionally so called towers, 2d polygons, are specified by 2d point coordinates to define sub-populations or domains of bacteria.
+
+## Build instructions
+This will vary depending from where the script should be run from. 
+- In the case the script is used within the ProMesh's GUI, i.e. in the live script editor, just copy and paste the script `polygonal_mesh_from_txt.lua` to this editor and adjust parameters as you need.
+- In the case `ugshell` is used, one needs to enable an additional plugin, ProMesh, during the build process of ug4. To install the plugin use `ughub installPackage ProMesh` and activate it during the build process via `cmake -DProMesh=ON` in your `BUILD` folder, then execute `make`. 
+
+More details on usage are provided below.
 
 ## Build status
 [![Build Status](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
 
 ## Parameters
 - Documented inline
+- Invoke `ugshell -helpMe` to print parameters
 
 ## Usage (GUI)
 1. Make sure you create a new mesh in ProMesh GUI (upper left corner)
@@ -62,6 +72,12 @@ Run the following command string:
  
  (number) numSmoothingSteps  = 1 : Number of smoothing steps (default = 1)
 ```
+
+Example (Will assume **all** tower files are in a certain *folder* and grid will be saved in *test.ugx*):
+```
+ugshell -ex polygonal_mesh_from_txt.lua -inputFolder path/to/tower/files.txt -outputFileName test.ugx
+```
+Note that the vertices of the rectangle can be specifeid via `-v1x,-v1y,-v2x,-v2y,-v3x,-v3y,-v4x,-v4y`.
 
 
 The file should be stored in a `.ugx` file on your disk with specified output name.
