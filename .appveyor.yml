@@ -1,0 +1,50 @@
+# Build worker image (VM template)
+image: Visual Studio 2017
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - date /T & time /T
+  - git config --global core.autocrlf input
+  - cmake --version
+
+clone_depth: 50
+
+version: '{build}'
+
+platform:
+  - x64
+
+configuration:
+  - Release
+
+environment:
+  MSBUILD_FLAGS: /verbosity:minimal /maxcpucount
+  matrix:
+    
+    - BUILD_VARIANT: "build"
+      generator: "Visual Studio 15 2017 Win64" 
+      DIM: 2;3
+      CPU: 1
+      TARGET: ugshell
+      STATIC_BUILD: ON
+    
+  
+install:
+  - if not exist appveyor_root mkdir appveyor_root && echo "appveyor root does not exist"
+  - cd appveyor_root
+  - if exist ughub rmdir /S /Q ughub
+  - git clone https://www.github.com/UG4/ughub
+  - if not exist ug4 mkdir ug4 
+  - if not exist ug4\.ughub ughub\ughub init ug4
+  - cd ug4 
+  - if not exist ugcore ..\ughub\ughub install ugcore
+  - if not exit ProMesh ..\ughub\ughub install ProMesh
+
+build_script:
+  - cd %APPVEYOR_BUILD_FOLDER%\appveyor_root\ug4
+  - if not exist %BUILD_VARIANT% mkdir %BUILD_VARIANT%
+  - cd %BUILD_VARIANT% && cmake ..\ -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=X64 -G "%generator%" -DTARGET="%TARGET%" -DLAPACK=OFF -DBLAS=OFF -DDIM="%DIM%" -DCPU="%CPU%" -DCOMPILE_INFO=OFF -DEMBEDDED_PLUGINS=ON -DSTATIC_BUILD="%STATIC_BUILD%" -DLAPACK=OFF -DBLAS=OFF -DProMesh=ON
+  - MSBuild .\ug4.sln  /property:Configuration=Release /property:Platform=x64
+  - cd ..\bin
+  # - curl -O "https://raw.githubusercontent.com/NeuroBox3D/ProMeshScripts/master/polygonal_mesh_from_txt.lua"
+  - if %TARGET% == "ugshell" Release\ugshell.exe -call "print(\"it works\")"
