@@ -11,8 +11,8 @@ This will vary depending from where the script should be run from.
 More details on usage are provided below.
 
 ## Build status
-[![Linux/OSX](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
-[![Windows](https://ci.appveyor.com/api/projects/status/6nwlqfyatdb7lc7n?svg=true)](https://ci.appveyor.com/project/stephanmg/promeshscripts)
+Linux/OSX: [![Linux/OSX](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
+Windows: [![Windows](https://ci.appveyor.com/api/projects/status/6nwlqfyatdb7lc7n?svg=true)](https://ci.appveyor.com/project/stephanmg/promeshscripts)
 
 
 ## Parameters
