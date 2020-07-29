@@ -14,8 +14,11 @@ print()
 --- Load CLI helpers if ug is available
 --------------------------------------------------------------------------------
 UG_AVAILABLE = os.getenv("UGROOT")
-if UG_AVAILABLE ~= nil then ug_load_script("ug_util.lua") end
-
+if UG_AVAILABLE ~= nil then 
+  ug_load_script("ug_util.lua") 
+else
+  print("UGROOT not set or ug4 not available, this script will run only in ProMesh")
+end
 --------------------------------------------------------------------------------
 --- helper functions                                                         ---
 --------------------------------------------------------------------------------
