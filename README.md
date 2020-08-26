@@ -1,13 +1,16 @@
 # ProMeshScripts
+
+
+Biofilm grid generation requires four 2d point coordinates specifying the bounding box of the biofilm as a rectangle. Additionally so called towers, 2d polygons, are specified by 2d point coordinates to define sub-populations or domains of bacteria.
+
 - `polygonal_mesh_from_txt` - creates 2d polygonal meshes from plain text files.
+
+
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/73579ffd7a804e72929752559b37a8e2)](https://app.codacy.com/gh/NeuroBox3D/ProMeshScripts?utm_source=github.com&utm_medium=referral&utm_content=NeuroBox3D/ProMeshScripts&utm_campaign=Badge_Grade_Dashboard)
  [![Linux/OSX](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
 [![Windows](https://ci.appveyor.com/api/projects/status/6nwlqfyatdb7lc7n?svg=true)](https://ci.appveyor.com/project/stephanmg/promeshscripts)
  [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-
-
-Biofilm grid generation requires four 2d point coordinates specifying the bounding box of the biofilm as a rectangle. Additionally so called towers, 2d polygons, are specified by 2d point coordinates to define sub-populations or domains of bacteria.
 
 ## Build instructions
 This will vary depending from where the script should be run from. 
