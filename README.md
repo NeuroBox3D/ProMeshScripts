@@ -1,6 +1,12 @@
 # ProMeshScripts
 - `polygonal_mesh_from_txt` - creates 2d polygonal meshes from plain text files.
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/73579ffd7a804e72929752559b37a8e2)](https://app.codacy.com/gh/NeuroBox3D/ProMeshScripts?utm_source=github.com&utm_medium=referral&utm_content=NeuroBox3D/ProMeshScripts&utm_campaign=Badge_Grade_Dashboard)
+ [![Linux/OSX](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
+[![Windows](https://ci.appveyor.com/api/projects/status/6nwlqfyatdb7lc7n?svg=true)](https://ci.appveyor.com/project/stephanmg/promeshscripts)
+ [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
+
 Biofilm grid generation requires four 2d point coordinates specifying the bounding box of the biofilm as a rectangle. Additionally so called towers, 2d polygons, are specified by 2d point coordinates to define sub-populations or domains of bacteria.
 
 ## Build instructions
@@ -9,12 +15,6 @@ This will vary depending from where the script should be run from.
 - In the case `ugshell` is used, one needs to enable an additional plugin, ProMesh, during the build process of ug4. To install the plugin use `ughub installPackage ProMesh` and activate it during the build process via `cmake -DProMesh=ON` in your `BUILD` folder, then execute `make`. 
 
 More details on usage are provided below.
-
-## Build status
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/73579ffd7a804e72929752559b37a8e2)](https://app.codacy.com/gh/NeuroBox3D/ProMeshScripts?utm_source=github.com&utm_medium=referral&utm_content=NeuroBox3D/ProMeshScripts&utm_campaign=Badge_Grade_Dashboard)
-Linux/OSX: [![Linux/OSX](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
-Windows: [![Windows](https://ci.appveyor.com/api/projects/status/6nwlqfyatdb7lc7n?svg=true)](https://ci.appveyor.com/project/stephanmg/promeshscripts)
-
 
 ## Parameters
 - Documented inline
