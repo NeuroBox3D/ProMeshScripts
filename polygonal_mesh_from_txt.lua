@@ -184,7 +184,7 @@ else
      write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
      local lines = lines_from(file)
      -- drop potential header                                                
-     if string.match(lines, '%a*%s*.?%s*%a*') do 
+     if string.match(lines[1], '%a*%s*.?%s*%a*') then
          table.remove(lines, 1)                                                
      end
      lastIndex = lastIndex + #lines -- current last vertex index needs to get updated each iteration
