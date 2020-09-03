@@ -183,6 +183,10 @@ else
    for fileindex, file in pairs(polygons) do
      write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
      local lines = lines_from(file)
+     -- drop potential header                                                
+     if string.match(lines, '%a*%s*.?%s*%a*') do 
+         table.remove(lines, 1)                                                
+     end
      lastIndex = lastIndex + #lines -- current last vertex index needs to get updated each iteration
      subsetIndex = fileindex-1 -- subset index for this tower (subsets starts at index 0)
 
