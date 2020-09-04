@@ -9,10 +9,6 @@ init:
 
 clone_depth: 50
 
-environment:
-    matrix:
-      - PYTHON: "C:\\Python37"
-
 version: '{build}'
 
 platform:
@@ -24,7 +20,7 @@ configuration:
 environment:
   MSBUILD_FLAGS: /verbosity:minimal /maxcpucount
   matrix:
-    
+    - PYTHON: "C:\\Python37"
     - BUILD_VARIANT: "build"
       generator: "Visual Studio 15 2017 Win64" 
       DIM: 2;3
