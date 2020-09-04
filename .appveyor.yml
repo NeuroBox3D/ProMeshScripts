@@ -20,13 +20,14 @@ configuration:
 environment:
   MSBUILD_FLAGS: /verbosity:minimal /maxcpucount
   matrix:
-    - PYTHON: "C:\\Python37"
+
     - BUILD_VARIANT: "build"
       generator: "Visual Studio 15 2017 Win64" 
       DIM: 2;3
       CPU: 1
       TARGET: ugshell
       STATIC_BUILD: ON
+      PYTHON: "C:\\Python37"
     
   
 install:
