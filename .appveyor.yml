@@ -9,6 +9,10 @@ init:
 
 clone_depth: 50
 
+environment:
+    matrix:
+      - PYTHON: "C:\\Python37"
+
 version: '{build}'
 
 platform:
@@ -30,6 +34,7 @@ environment:
     
   
 install:
+  - SET PATH=%PYTHON%;%PATH%
   - if not exist appveyor_root mkdir appveyor_root && echo "appveyor root does not exist"
   - cd appveyor_root
   - if exist ughub rmdir /S /Q ughub
