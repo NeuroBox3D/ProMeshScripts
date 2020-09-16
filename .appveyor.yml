@@ -20,16 +20,18 @@ configuration:
 environment:
   MSBUILD_FLAGS: /verbosity:minimal /maxcpucount
   matrix:
-    
+
     - BUILD_VARIANT: "build"
       generator: "Visual Studio 15 2017 Win64" 
       DIM: 2;3
       CPU: 1
       TARGET: ugshell
       STATIC_BUILD: ON
+      PYTHON: "C:\\Python37"
     
   
 install:
+  - SET PATH=%PYTHON%;%PATH%
   - if not exist appveyor_root mkdir appveyor_root && echo "appveyor root does not exist"
   - cd appveyor_root
   - if exist ughub rmdir /S /Q ughub
