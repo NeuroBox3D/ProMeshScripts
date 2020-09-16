@@ -87,6 +87,7 @@ local numBoundaries = get_param('util.GetParamNumber("-numBoundaries", 4, "Numbe
 
 -- join corners of rectangle to one of the four bondaries
 local joinCorners = not get_param('util.HasParamOption("-joinCornersNot", "Join corners")', false)
+joinCorners = true
 
 --------------------------------------------------------------------------------
 --- pre-refinement and smoothing parameters for tower                        ---
@@ -98,28 +99,28 @@ local numSmoothingSteps = get_param('util.GetParamNumber("numSmoothingSteps", 1,
 local smoothingAlpha = get_param('util.GetParamNumber("-smoothingAlpha", 0.1, "Alpha for smoothing")', 0.1)
 
 -- pre refinements of single polygons / towers only
-local numPreRefinements = get_param('util.GetParamNumber("-numPreRefinements", 2, "Number of tower refinements")', 2)
+local numPreRefinements = get_param('util.GetParamNumber("-numPreRefinements", 0, "Number of tower refinements")', 0)
 
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
 --------------------------------------------------------------------------------
--- rectangular coordinates
 local v1 = {
-  x = get_param('util.GetParamNumber("-v1x", 0, "Top left x")', 0),
-  y = get_param('util.GetParamNumber("-v1y", -118.57, "Top left y")', -118.57)
+  x = 0,
+  y = -118.57
 } -- bottom left
 local v2 = {
-  x = get_param('util.GetParamNumber("-v2x", 122.9, "Top right x")', 122.9),
-  y = get_param('util.GetParamNumber("-v2y", -118.57, "Top right y")', -118.57)
+  x = 122.9,
+  y = -118.57
 } -- bottom right
 local v3 = {
-  x = get_param('util.GetParamNumber("-v3x", 0, "Bottom left x")', 0),
-  y = get_param('util.GetParamNumber("-v3y", 0, "Bottom left y")', 0)
+  x = 0,
+  y = 0
 } -- top left
 local v4 = {
-  x = get_param('util.GetParamNumber("-v4x", 122.9, "Bottom right x")', 122.9),
-  y = get_param('util.GetParamNumber("-v4y", 0, "Bottom right y")', 0)
+  x = 122.9,
+  y = 0
 } -- top right
+ 
 
  -- fix 3rd coordinate to zero
 local zCoordinate = get_param('util.GetParamNumber("-zCoordinate", 0, "Fixed z coordinate")', 0)
@@ -128,7 +129,7 @@ local zCoordinate = get_param('util.GetParamNumber("-zCoordinate", 0, "Fixed z c
 --- refinement and triangulation settings                                    ---
 --------------------------------------------------------------------------------
 -- number of isotropic refinements of mesh, might be increased for many polygons
-local numRefinements = get_param('util.GetParamNumber("-numRefinements", 2, "Number of volume refinements")', 2)
+local numRefinements = get_param('util.GetParamNumber("-numRefinements", 1, "Number of volume refinements")', 1)
 -- final minimum triangle angle in delaunay triangulation for tower 
 local minAngleTower = get_param('util.GetParamNumber("-minAngleTower", 25, "Dihedral for towers")', 25)
 -- final minimum triangle angle in delaunay triangulation for vol
@@ -183,6 +184,11 @@ else
    for fileindex, file in pairs(polygons) do
      write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
      local lines = lines_from(file)
+     -- drop potential header
+     if string.match(lines[1], '%a*%s*.?%s*%a*') then
+        table.remove(lines, 1)
+     end
+
      lastIndex = lastIndex + #lines -- current last vertex index needs to get updated each iteration
      subsetIndex = fileindex-1 -- subset index for this tower (subsets starts at index 0)
 
@@ -224,6 +230,8 @@ else
    CreateVertex(mesh, MakeVec(v4.x, v4.y, zCoordinate), rectIndex)
    ClearSelection(mesh)
 
+
+
    --------------------------------------------------------------------------------
    --- rectangle boundary                                                       ---
    --------------------------------------------------------------------------------
@@ -256,6 +264,8 @@ else
      ClearSelection(mesh)
    end
 
+
+
    --------------------------------------------------------------------------------
    --- remove doubles and (isotropic) refinement                                ---
    --------------------------------------------------------------------------------
@@ -281,12 +291,19 @@ else
    for i, file in pairs(polygons) do
      SelectSubset(mesh, i-1, true, true, true, false)
      -- 4 boundaries and 1 corner subset = 5
-     TriangleFill(mesh, true, minAngleTower, rectIndex+5+i)
+     TriangleFill(mesh, true, 30, rectIndex+5+i)
      ClearSelection(mesh)
    end
+
+   SaveMesh(mesh, outputFileName)
+--  exit()
+
    ClearSelection(mesh)
    SelectAll(mesh)
-   TriangleFill(mesh, true, minAngleVol, rectIndex+5+#polygons+1)
+   TriangleFill(mesh, true, 5, rectIndex+5+#polygons+1)
+
+
+
 
    --------------------------------------------------------------------------------
    --- subset naming                                                            ---
