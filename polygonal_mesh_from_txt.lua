@@ -196,7 +196,7 @@ else
      local vertices = {}
      for k, v in pairs(lines) do
       local coordinates = {}
-       for coordinate in v:gmatch("%S+") do table.insert(coordinates, coordinate) end
+       for coordinate in v:gmatch("[^,]+") do table.insert(coordinates, coordinate) end
        vertex = CreateVertex(mesh, MakeVec(coordinates[1], coordinates[2], zCoordinate), subsetIndex)
        table.insert(vertices, vertex)
      end
@@ -296,14 +296,10 @@ else
    end
 
    SaveMesh(mesh, outputFileName)
---  exit()
 
    ClearSelection(mesh)
    SelectAll(mesh)
    TriangleFill(mesh, true, 5, rectIndex+5+#polygons+1)
-
-
-
 
    --------------------------------------------------------------------------------
    --- subset naming                                                            ---
