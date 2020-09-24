@@ -19,6 +19,7 @@ if UG_AVAILABLE ~= nil then
 else
   print("UGROOT not set or ug4 not available, this script will run only in ProMesh")
 end
+
 --------------------------------------------------------------------------------
 --- helper functions                                                         ---
 --------------------------------------------------------------------------------
@@ -29,11 +30,21 @@ local function file_exists(file)
   return f ~= nil
 end
 
+-- trim whitespace
+local function trim(s)
+  return s:match "^%s*(.-)%s*$"
+end
+
 -- read lines from file function
 local function lines_from(file)
   if not file_exists(file) then return {} end
   lines = {}
-  for line in io.lines(file) do lines[#lines + 1] = line end
+  for line in io.lines(file) do 
+     -- converts to a valid CSV format without whitespaces
+     if not line:match("%a+%s?%A%s?%a+") then 
+        lines[#lines + 1] = trim(line):gsub("%s+", ",")
+     end
+  end
   return lines
 end
 
@@ -185,10 +196,8 @@ else
      write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
      local lines = lines_from(file)
      -- drop potential header
-     if string.match(lines[1], '%a*%s*.?%s*%a*') then
-        table.remove(lines, 1)
-     end
-
+     if string.match(lines[1], '%a*%s*.?%s*%a*') then table.remove(lines, 1) end
+ 
      lastIndex = lastIndex + #lines -- current last vertex index needs to get updated each iteration
      subsetIndex = fileindex-1 -- subset index for this tower (subsets starts at index 0)
 
