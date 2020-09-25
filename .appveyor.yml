@@ -46,5 +46,6 @@ build_script:
   - cd %BUILD_VARIANT% && cmake ..\ -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=X64 -G "%generator%" -DTARGET="%TARGET%" -DLAPACK=OFF -DBLAS=OFF -DDIM="%DIM%" -DCPU="%CPU%" -DCOMPILE_INFO=OFF -DEMBEDDED_PLUGINS=ON -DSTATIC_BUILD="%STATIC_BUILD%" -DLAPACK=OFF -DBLAS=OFF -DProMesh=ON
   - MSBuild .\ug4.sln  /property:Configuration=Release /property:Platform=x64
   - cd ..\bin
-  # - curl -O "https://raw.githubusercontent.com/NeuroBox3D/ProMeshScripts/master/polygonal_mesh_from_txt.lua"
-  - if %TARGET% == "ugshell" Release\ugshell.exe -call "print(\"it works\")"
+  - curl -fsS -o polygonal_mesh_from_txt.lua https://raw.githubusercontent.com/NeuroBox3D/ProMeshScripts/master/polygonal_mesh_from_txt.lua
+  - if %TARGET% == "ugshell" Release\ugshell.exe -ex polygonal_mesh_from_txt.lua -inputFolder c:\projects\promeshscripts\data -outputFileName test.ugx
+  - dir test.ugx
