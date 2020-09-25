@@ -1,3 +1,4 @@
+image: Visual Studio 2017
 # scripts that are called at very beginning, before repo cloning
 init:
   - date /T & time /T
@@ -19,16 +20,6 @@ environment:
   matrix:
 
     - BUILD_VARIANT: "build"
-      image: Visual Studio 2015
-      generator: "Visual Studio 14 2015 Win64" 
-      DIM: 2;3
-      CPU: 1
-      TARGET: ugshell
-      STATIC_BUILD: ON
-      PYTHON: "C:\\Python37"
-
-    - BUILD_VARIANT: "build"
-      image: Visual Studio 2017
       generator: "Visual Studio 15 2017 Win64" 
       DIM: 2;3
       CPU: 1
@@ -36,17 +27,9 @@ environment:
       STATIC_BUILD: ON
       PYTHON: "C:\\Python37"
 
-    - BUILD_VARIANT: "build"
-      image: Visual Studio 2019
-      generator: "Visual Studio 16 2019" 
-      DIM: 2;3
-      CPU: 1
-      TARGET: ugshell
-      STATIC_BUILD: ON
-      PYTHON: "C:\\Python37"
-  
 install:
   - SET PATH=%PYTHON%;%PATH%
+  - SET UGROOT=c:\projects\promeshscripts\appveyor_root\ug4\
   - if not exist appveyor_root mkdir appveyor_root && echo "appveyor root does not exist"
   - cd appveyor_root
   - if exist ughub rmdir /S /Q ughub
