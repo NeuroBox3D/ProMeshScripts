@@ -8,7 +8,8 @@ Biofilm grid generation requires four 2d point coordinates specifying the boundi
 
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/73579ffd7a804e72929752559b37a8e2)](https://app.codacy.com/gh/NeuroBox3D/ProMeshScripts?utm_source=github.com&utm_medium=referral&utm_content=NeuroBox3D/ProMeshScripts&utm_campaign=Badge_Grade_Dashboard)
- [![Linux/OSX](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
+ [![Linux](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
+ [![OSX](https://travis-ci.org/NeuroBox3D/ProMeshScripts.svg?branch=master)](https://travis-ci.org/NeuroBox3D/ProMeshScripts)
 [![Windows](https://ci.appveyor.com/api/projects/status/6nwlqfyatdb7lc7n?svg=true)](https://ci.appveyor.com/project/stephanmg/promeshscripts)
  [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
