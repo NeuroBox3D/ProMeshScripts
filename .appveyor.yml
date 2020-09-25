@@ -1,9 +1,3 @@
-# image
-image: 
-  - Visual Studio 2015
-  - Visual Studio 2017
-  - Visual Studio 2019
-
 # scripts that are called at very beginning, before repo cloning
 init:
   - date /T & time /T
@@ -25,6 +19,7 @@ environment:
   matrix:
 
     - BUILD_VARIANT: "build"
+      image: Visual Studio 2015
       generator: "Visual Studio 15 2015 Win64" 
       DIM: 2;3
       CPU: 1
@@ -33,6 +28,7 @@ environment:
       PYTHON: "C:\\Python37"
 
     - BUILD_VARIANT: "build"
+      image: Visual Studio 2017
       generator: "Visual Studio 15 2017 Win64" 
       DIM: 2;3
       CPU: 1
@@ -41,6 +37,7 @@ environment:
       PYTHON: "C:\\Python37"
 
     - BUILD_VARIANT: "build"
+      image: Visual Studio 2019
       generator: "Visual Studio 15 2019 Win64" 
       DIM: 2;3
       CPU: 1
