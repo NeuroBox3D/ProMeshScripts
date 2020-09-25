@@ -1,6 +1,3 @@
-# run in container
-sudo: false
-
 addons:
     apt:
       packages:
@@ -13,6 +10,8 @@ git:
   
 language: cpp
 
+dist: xenial
+
 compiler:
     - gcc
     - clang
@@ -21,10 +20,8 @@ os:
   - linux
   - osx
 
-
 jobs:
   include:
-   - dist: xenial
    - dist: bionic
    - dist: focal
    - dist: trusty
