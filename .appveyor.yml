@@ -47,5 +47,5 @@ build_script:
   - MSBuild .\ug4.sln  /property:Configuration=Release /property:Platform=x64
   - cd ..\bin
   - curl -fsS -o polygonal_mesh_from_txt.lua https://raw.githubusercontent.com/NeuroBox3D/ProMeshScripts/master/polygonal_mesh_from_txt.lua
-  - if %TARGET% == "ugshell" Release\ugshell.exe -ex polygonal_mesh_from_txt.lua -inputFolder c:\projects\promeshscripts\data -outputFileName test.ugx
+  - if %TARGET% == "ugshell" Release\ugshell.exe -ex polygonal_mesh_from_txt.lua -inputFolder c:\projects\promeshscripts\data\ -outputFileName test.ugx
   - dir test.ugx
