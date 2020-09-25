@@ -20,7 +20,7 @@ environment:
 
     - BUILD_VARIANT: "build"
       image: Visual Studio 2015
-      generator: "Visual Studio 15 2019 Win64" 
+      generator: "Visual Studio 14 2015 Win64" 
       DIM: 2;3
       CPU: 1
       TARGET: ugshell
@@ -38,7 +38,7 @@ environment:
 
     - BUILD_VARIANT: "build"
       image: Visual Studio 2019
-      generator: "Visual Studio 16 2019 Win64" 
+      generator: "Visual Studio 16 2019" 
       DIM: 2;3
       CPU: 1
       TARGET: ugshell
