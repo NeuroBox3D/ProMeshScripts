@@ -1,3 +1,6 @@
+env:
+  - UGROOT="/home/travis/build/NeuroBox3D/ProMeshScripts/travis_root/ug4/"
+
 addons:
     apt:
       packages:
