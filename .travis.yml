@@ -21,12 +21,14 @@ os:
   - linux
   - osx
 
-dist: 
-  - precise
-  - trusty
-  - xenial
-  - bionic
-  - focal
+
+jobs:
+  include:
+   - dist: xenial
+   - dist: bionic
+   - dist: focal
+   - dist: trusty
+   - dist: precise
   
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
