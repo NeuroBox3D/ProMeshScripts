@@ -1,5 +1,8 @@
-# Build worker image (VM template)
-image: Visual Studio 2017
+# image
+image: 
+  - Visual Studio 2015
+  - Visual Studio 2017
+  - Visual Studio 2019
 
 # scripts that are called at very beginning, before repo cloning
 init:
@@ -22,13 +25,28 @@ environment:
   matrix:
 
     - BUILD_VARIANT: "build"
+      generator: "Visual Studio 15 2015 Win64" 
+      DIM: 2;3
+      CPU: 1
+      TARGET: ugshell
+      STATIC_BUILD: ON
+      PYTHON: "C:\\Python37"
+
+    - BUILD_VARIANT: "build"
       generator: "Visual Studio 15 2017 Win64" 
       DIM: 2;3
       CPU: 1
       TARGET: ugshell
       STATIC_BUILD: ON
       PYTHON: "C:\\Python37"
-    
+
+    - BUILD_VARIANT: "build"
+      generator: "Visual Studio 15 2019 Win64" 
+      DIM: 2;3
+      CPU: 1
+      TARGET: ugshell
+      STATIC_BUILD: ON
+      PYTHON: "C:\\Python37"
   
 install:
   - SET PATH=%PYTHON%;%PATH%
