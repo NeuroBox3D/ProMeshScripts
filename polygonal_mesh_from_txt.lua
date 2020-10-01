@@ -101,6 +101,9 @@ local numBoundaries = get_param('util.GetParamNumber("-numBoundaries", 4, "Numbe
 local joinCorners = not get_param('util.HasParamOption("-joinCornersNot", "Join corners")', false)
 joinCorners = true
 
+-- safety margin for automatic bounding box calculation (5% is default")
+local margin = get_param('util.GetParamNumber("-safetyMargin", 5, "Safety margin (Default: 5%)")', 5)
+
 --------------------------------------------------------------------------------
 --- pre-refinement and smoothing parameters for tower                        ---
 --------------------------------------------------------------------------------
@@ -114,44 +117,24 @@ local smoothingAlpha = get_param('util.GetParamNumber("-smoothingAlpha", 0.1, "A
 local numPreRefinements = get_param('util.GetParamNumber("-numPreRefinements", 0, "Number of tower refinements")', 0)
 
 --------------------------------------------------------------------------------
--- coordinates                                                               ---
+-- rectnagle bounding box coordinates                                        ---
 --------------------------------------------------------------------------------
---[[
 local v1 = {
-  x = 0,
-  y = -118.57
+  x = nil,
+  y = nil
 } -- bottom left
 local v2 = {
-  x = 122.9,
-  y = -118.57
+  x = nil,
+  y = nil
 } -- bottom right
 local v3 = {
-  x = 0,
-  y = 0
+  x = nil,
+  y = nil
 } -- top left
 local v4 = {
-  x = 122.9,
-  y = 0
+  x = nil,
+  y = nil
 } -- top right
---]]
-
-local v1 = {
-  x = 0,
-  y = -123.14
-} -- bottom left
-local v2 = {
-  x = 123.14,
-  y = -123.14
-} -- bottom right
-local v3 = {
-  x = 0,
-  y = 0
-} -- top left
-local v4 = {
-  x = 123.14,
-  y = 0
-} -- top right
- 
 
  -- fix 3rd coordinate to zero
 local zCoordinate = get_param('util.GetParamNumber("-zCoordinate", 0, "Fixed z coordinate")', 0)
@@ -290,31 +273,20 @@ else
    v4.x = maxX 
    v4.y = maxY 
     
+   -- x and y direction
+   xDir = maxX - minX
+   yDir = maxY - minY
 
-   xDir = {
-      x = maxX - minX,
-      y = minY - minY
-    }
-
-   yDir = {
-     x = maxX - maxX,
-     y = maxY - minY
-   }
-
-  -- 10% safety margin
-  margin = 0.01
-  v1.x = v1.x - xDir.x * margin 
-  v1.y = v1.y - yDir.y * margin
-  v2.x = v2.x + xDir.x * margin
-  v2.y = v2.y - yDir.y * margin
+  -- calculate bounding box
+  v1.x = v1.x - xDir * margin 
+  v1.y = v1.y - yDir * margin
+  v2.x = v2.x + xDir * margin
+  v2.y = v2.y - yDir * margin
   
-  v3.x = v3.x - xDir.x * margin
-  v3.y = v3.y + yDir.y * margin
-  v4.x = v4.x + xDir.x * margin
-  v4.y = v4.y + yDir.y * margin
-  
-  print(xDir)
-  print(yDir)
+  v3.x = v3.x - xDir * margin
+  v3.y = v3.y + yDir * margin
+  v4.x = v4.x + xDir * margin
+  v4.y = v4.y + yDir * margin
   
    --------------------------------------------------------------------------------
    --- create rectangle                                                         ---
