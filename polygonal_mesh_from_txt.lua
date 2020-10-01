@@ -41,10 +41,6 @@ local function lines_from(file)
   lines = {}
   for line in io.lines(file) do 
       lines[#lines+1] = line
-     -- converts to a valid CSV format without whitespaces
- --    if not line:match("%a+%s?%A%s?%a+") then 
-  --      lines[#lines + 1] = trim(line):gsub("%s+", ",")
-   --  end
   end
   return lines
 end
@@ -67,9 +63,11 @@ local function scandir(directory)
     return false
   end
 
+  -- note on windows we expect only txt or csv files in the older to be present
   local tmpFile = os.tmpname()
-  local cmd = linux() and 'find ' .. directory .. ' -iname ' .. '"*.txt"' .. ' > ' .. tmpFile
-                      or 'dir "'..directory..'" /b /ad >' .. tmpFile
+  local cmd = linux() and 'find ' .. directory .. ' -iname ' .. '"*.csv"' .. 
+                          ' -o -iname ' .. '"*.txt"' ..' > ' .. tmpFile
+                      or 'dir "'..directory..'" /b /ad >' .. tmpFile 
   os.execute(cmd)
   return lines_from(tmpFile)
 end
@@ -166,7 +164,6 @@ else
       os.exit()
    end
   
-  print("inputFolder:" .. inputFolder)
   for k, v in pairs(scandir(inputFolder)) do
     str = 'param=get_param(\'util.GetParam(\"-tower' .. k .. "\"," .. "\"" .. v
              .. '", ' .. '"' .. "Tower # " .. k .. "\")', nil)"
@@ -178,7 +175,7 @@ else
      if not file then
         if (UG_AVAILABLE) then util.PrintHelp() end
           print("Please provide a valid tower file for tower #" .. index)
-          os.exit()
+          return
      end
    end
 
@@ -186,7 +183,13 @@ else
        if (UG_AVAILABLE) then util.PrintHelp() end
           print("Please provide a valid output file name")
           return
-          os.exit()
+   end
+
+
+   -- if not a single tower given, exit.
+   if #polygons == 0 then
+      print("No input towers found in input folder. Exiting.")
+      return
    end
 
    --------------------------------------------------------------------------------
@@ -201,7 +204,7 @@ else
    local maxY = nil
    local minY = nil
    for fileindex, file in pairs(polygons) do
-     write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
+     write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .csv file '" .. file .. "'...")
      local lines = lines_from(file)
      -- drop potential header
      if string.match(lines[1], '%a*%s*.?%s*%a*') then table.remove(lines, 1) end
@@ -261,32 +264,27 @@ else
     end
 
    -- top left
-   v1.x = minX
-   v1.y = minY 
+   v1 = { x = minX, y = minY }
    -- bottom left
-   v2.x = maxX
-   v2.y = minY
+   v2 = { x = maxX, y = minY }
    -- top right
-   v3.x = minX 
-   v3.y = maxY
+   v3 = { x = minX, y = maxY }
    -- bottom right
-   v4.x = maxX 
-   v4.y = maxY 
+   v4 = { x = maxX, y = maxY }
     
    -- x and y direction
-   xDir = maxX - minX
-   yDir = maxY - minY
+   dirs = { x = maxX - minX, y = maxY - minY }
 
-  -- calculate bounding box
-  v1.x = v1.x - xDir * margin 
-  v1.y = v1.y - yDir * margin
-  v2.x = v2.x + xDir * margin
-  v2.y = v2.y - yDir * margin
+   -- calculate bounding box
+   v1.x = v1.x - dirs.x * margin * 0.01
+   v1.y = v1.y - dirs.y * margin * 0.01
+   v2.x = v2.x + dirs.x * margin * 0.01
+   v2.y = v2.y - dirs.y * margin * 0.01
   
-  v3.x = v3.x - xDir * margin
-  v3.y = v3.y + yDir * margin
-  v4.x = v4.x + xDir * margin
-  v4.y = v4.y + yDir * margin
+   v3.x = v3.x - dirs.x * margin * 0.01
+   v3.y = v3.y + dirs.y * margin * 0.01
+   v4.x = v4.x + dirs.x * margin * 0.01
+   v4.y = v4.y + dirs.y * margin * 0.01
   
    --------------------------------------------------------------------------------
    --- create rectangle                                                         ---
