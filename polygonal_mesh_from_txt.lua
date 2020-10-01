@@ -213,21 +213,43 @@ else
    local currentIndex = 0 -- current number of vertices created so far
    local subsetIndex = -1 -- current subset index
    local lastIndex = 0 -- index of last vertex
+   local maxX = nil
+   local minX = nil
+   local maxY = nil
+   local minY = nil
    for fileindex, file in pairs(polygons) do
      write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .txt file '" .. file .. "'...")
      local lines = lines_from(file)
      -- drop potential header
      if string.match(lines[1], '%a*%s*.?%s*%a*') then table.remove(lines, 1) end
- 
+
      lastIndex = lastIndex + #lines -- current last vertex index needs to get updated each iteration
      subsetIndex = fileindex-1 -- subset index for this tower (subsets starts at index 0)
 
      -- read each component of all 2d coordinates (separated by whitespace) and create mesh vertices
      local vertices = {}
      for k, v in pairs(lines) do
-      local coordinates = {}
+       local coordinates = {}
        for coordinate in v:gmatch("[^,]+") do table.insert(coordinates, coordinate) end
        vertex = CreateVertex(mesh, MakeVec(coordinates[1], coordinates[2], zCoordinate), subsetIndex)
+
+       -- can be improved
+       if (not minX or not maxX) then 
+          minX = coordinates[1]
+          maxX = coordinates[1]
+       end
+
+       if (not minY or not maxY) then 
+          minY = coordinates[2]
+          maxY = coordinates[2]
+       end
+      
+       -- can be improved as well
+       minX = math.min(coordinates[1], minX)
+       minY = math.min(coordinates[2], minY)
+       maxX = math.max(coordinates[1], maxX)
+       maxY = math.max(coordinates[2], maxY)
+
        table.insert(vertices, vertex)
      end
 
@@ -250,6 +272,50 @@ else
      print(" done!")
    end
 
+    local getDistance = function(a, b)
+      local x, y, z = a.x-b.x, a.y-b.y, a.z-b.z
+      return square(x*x+y*y+z*z)
+    end
+
+   -- top left
+   v1.x = minX
+   v1.y = minY 
+   -- bottom left
+   v2.x = maxX
+   v2.y = minY
+   -- top right
+   v3.x = minX 
+   v3.y = maxY
+   -- bottom right
+   v4.x = maxX 
+   v4.y = maxY 
+    
+
+   xDir = {
+      x = maxX - minX,
+      y = minY - minY
+    }
+
+   yDir = {
+     x = maxX - maxX,
+     y = maxY - minY
+   }
+
+  -- 10% safety margin
+  margin = 0.01
+  v1.x = v1.x - xDir.x * margin 
+  v1.y = v1.y - yDir.y * margin
+  v2.x = v2.x + xDir.x * margin
+  v2.y = v2.y - yDir.y * margin
+  
+  v3.x = v3.x - xDir.x * margin
+  v3.y = v3.y + yDir.y * margin
+  v4.x = v4.x + xDir.x * margin
+  v4.y = v4.y + yDir.y * margin
+  
+  print(xDir)
+  print(yDir)
+  
    --------------------------------------------------------------------------------
    --- create rectangle                                                         ---
    --------------------------------------------------------------------------------
