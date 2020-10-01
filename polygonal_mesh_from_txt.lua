@@ -40,10 +40,11 @@ local function lines_from(file)
   if not file_exists(file) then return {} end
   lines = {}
   for line in io.lines(file) do 
+      lines[#lines+1] = line
      -- converts to a valid CSV format without whitespaces
-     if not line:match("%a+%s?%A%s?%a+") then 
-        lines[#lines + 1] = trim(line):gsub("%s+", ",")
-     end
+ --    if not line:match("%a+%s?%A%s?%a+") then 
+  --      lines[#lines + 1] = trim(line):gsub("%s+", ",")
+   --  end
   end
   return lines
 end
@@ -115,6 +116,7 @@ local numPreRefinements = get_param('util.GetParamNumber("-numPreRefinements", 0
 --------------------------------------------------------------------------------
 -- coordinates                                                               ---
 --------------------------------------------------------------------------------
+--[[
 local v1 = {
   x = 0,
   y = -118.57
@@ -129,6 +131,24 @@ local v3 = {
 } -- top left
 local v4 = {
   x = 122.9,
+  y = 0
+} -- top right
+--]]
+
+local v1 = {
+  x = 0,
+  y = -123.14
+} -- bottom left
+local v2 = {
+  x = 123.14,
+  y = -123.14
+} -- bottom right
+local v3 = {
+  x = 0,
+  y = 0
+} -- top left
+local v4 = {
+  x = 123.14,
   y = 0
 } -- top right
  
@@ -162,7 +182,8 @@ else
       print("Please provide a valid input folder")
       os.exit()
    end
-
+  
+  print("inputFolder:" .. inputFolder)
   for k, v in pairs(scandir(inputFolder)) do
     str = 'param=get_param(\'util.GetParam(\"-tower' .. k .. "\"," .. "\"" .. v
              .. '", ' .. '"' .. "Tower # " .. k .. "\")', nil)"
