@@ -41,3 +41,6 @@ luac.out
 
 # grid files
 *.ugx
+
+# old files
+old/
