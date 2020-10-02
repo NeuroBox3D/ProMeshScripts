@@ -59,10 +59,11 @@ function get_param(str, default)
   end
 end
 
--- emulate scan directory function (one does not want to include additional dependencies)
+-- emulate scan directory function 
 local function scandir(directory)
   local function linux()
-    local pathSep = package.config:sub(1,1) -- '/' for Linux/OSX and '\\' for Windows
+    -- pathSep is '/' for Linux/OSX and '\\' for Windows
+    local pathSep = package.config:sub(1,1) 
     if string.find(pathSep, '/') then return true end
     return false
   end
@@ -123,20 +124,16 @@ local numPreRefinements = get_param('util.GetParamNumber("-numPreRefinements", 0
 -- rectnagle bounding box coordinates                                        ---
 --------------------------------------------------------------------------------
 local v1 = {
-  x = nil,
-  y = nil
+  x = nil, y = nil
 } -- bottom left
 local v2 = {
-  x = nil,
-  y = nil
+  x = nil, y = nil
 } -- bottom right
 local v3 = {
-  x = nil,
-  y = nil
+  x = nil, y = nil
 } -- top left
 local v4 = {
-  x = nil,
-  y = nil
+  x = nil, y = nil
 } -- top right
 
  -- fix 3rd coordinate to zero
@@ -189,7 +186,6 @@ else
           print("Please provide a valid output file name")
           return
    end
-
 
    -- if not a single tower given, exit.
    if #polygons == 0 then
@@ -256,11 +252,6 @@ else
      print(" done!")
    end
 
-    local getDistance = function(a, b)
-      local x, y, z = a.x-b.x, a.y-b.y, a.z-b.z
-      return square(x*x+y*y+z*z)
-    end
-
    -- top left
    v1 = { x = minX, y = minY }
    -- bottom left
@@ -274,15 +265,10 @@ else
    dirs = { x = maxX - minX, y = maxY - minY }
 
    -- calculate bounding box
-   v1.x = v1.x - dirs.x * margin * 0.01
-   v1.y = v1.y - dirs.y * margin * 0.01
-   v2.x = v2.x + dirs.x * margin * 0.01
-   v2.y = v2.y - dirs.y * margin * 0.01
-  
-   v3.x = v3.x - dirs.x * margin * 0.01
-   v3.y = v3.y + dirs.y * margin * 0.01
-   v4.x = v4.x + dirs.x * margin * 0.01
-   v4.y = v4.y + dirs.y * margin * 0.01
+   v1.x, v1.y = v1.x - dirs.x * margin * 0.01, v1.y - dirs.y * margin * 0.01
+   v2.x, v2.y = v2.x + dirs.x * margin * 0.01, v2.y - dirs.y * margin * 0.01
+   v3.x, v3.y = v3.x - dirs.x * margin * 0.01, v3.y + dirs.y * margin * 0.01
+   v4.x, v4.y = v4.x + dirs.x * margin * 0.01, v4.y + dirs.y * margin * 0.01
   
    --------------------------------------------------------------------------------
    --- create rectangle                                                         ---
