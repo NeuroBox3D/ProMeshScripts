@@ -1,15 +1,19 @@
 --------------------------------------------------------------------------------
--- This script creates a 2d polygonal mesh from provided txt data             --
--- Usage: Copy and paste into ProMesh's live script editor and apply          --
---                                                                            --
--- Note: Make sure file path of the txt file points to a valid location       --
+-- Brief: This script creates a 2d polygonal mesh from provided txt/csv data  --
+-- Note that the data folder must contain files with txt or csv extension     --
+-- all other files are ignored. A rectangular bounding box is generated       --
+-- automatically from the provided 2d polygons                                --
+--------------------------------------------------------------------------------
+-- Usage: Copy and paste into ProMesh's live script editor and press apply    --
+--        Alternatively: Build ushell and execute with the following string:  --
+--        ugshell -ex polygonal_mesh_from_txt.lua \                           --
+--                 -inputFolder data/ \                                       --
+--                 -outputFileName test.ugx                                   --
 --                                                                            --
 -- Author: Stephan Grein                                                      --
 -- Date:   05-21-2020                                                         --
 --------------------------------------------------------------------------------
-print("Executing polygonal_mesh_from_txt script...")
-print()
-
+write("1) Checking input data... ")
 --------------------------------------------------------------------------------
 --- Load CLI helpers if ug is available
 --------------------------------------------------------------------------------
@@ -63,11 +67,12 @@ local function scandir(directory)
     return false
   end
 
-  -- note on windows we expect only txt or csv files in the older to be present
+  -- all csv and txt files are considered during read-in
   local tmpFile = os.tmpname()
   local cmd = linux() and 'find ' .. directory .. ' -iname ' .. '"*.csv"' .. 
                           ' -o -iname ' .. '"*.txt"' ..' > ' .. tmpFile
-                      or 'dir "'..directory..'" /b /ad >' .. tmpFile 
+                      or 'dir "'..directory..'" /b /ad *.csv & "'..directory..
+                         '" /b /ad *.txt >' .. tmpFile 
   os.execute(cmd)
   return lines_from(tmpFile)
 end
@@ -192,6 +197,7 @@ else
       return
    end
 
+   print("done! ") print()
    --------------------------------------------------------------------------------
    --- create tower(s)                                                          ---
    --------------------------------------------------------------------------------
@@ -199,43 +205,35 @@ else
    local currentIndex = 0 -- current number of vertices created so far
    local subsetIndex = -1 -- current subset index
    local lastIndex = 0 -- index of last vertex
-   local maxX = nil
-   local minX = nil
-   local maxY = nil
-   local minY = nil
+   local maxX, minX, maxY, minY = nil, nil, nil, nil -- bounds of geometry
+   print("2) Creating polygons...")
    for fileindex, file in pairs(polygons) do
      write("Creating 2d polygon # " .. fileindex .. "/" .. #polygons .. " from provided .csv file '" .. file .. "'...")
      local lines = lines_from(file)
      -- drop potential header
      if string.match(lines[1], '%a*%s*.?%s*%a*') then table.remove(lines, 1) end
 
+     -- keep track of subsets and indices
      lastIndex = lastIndex + #lines -- current last vertex index needs to get updated each iteration
      subsetIndex = fileindex-1 -- subset index for this tower (subsets starts at index 0)
 
      -- read each component of all 2d coordinates (separated by whitespace) and create mesh vertices
      local vertices = {}
      for k, v in pairs(lines) do
+       -- extract coordinates
        local coordinates = {}
        for coordinate in v:gmatch("[^,]+") do table.insert(coordinates, coordinate) end
        vertex = CreateVertex(mesh, MakeVec(coordinates[1], coordinates[2], zCoordinate), subsetIndex)
 
-       -- can be improved
-       if (not minX or not maxX) then 
-          minX = coordinates[1]
-          maxX = coordinates[1]
-       end
-
-       if (not minY or not maxY) then 
-          minY = coordinates[2]
-          maxY = coordinates[2]
-       end
+       -- guard: initialize only if empty
+       if (not (minX and maxX)) then minX, maxX = coordinates[1], coordinates[1] end
+       if (not (minY and maxY)) then minY, maxY = coordinates[2], coordinates[2] end
       
-       -- can be improved as well
-       minX = math.min(coordinates[1], minX)
-       minY = math.min(coordinates[2], minY)
-       maxX = math.max(coordinates[1], maxX)
-       maxY = math.max(coordinates[2], maxY)
+       -- update bounds of geometry
+       minX, minY  = math.min(coordinates[1], minX), math.min(coordinates[2], minY)
+       maxX, maxY  = math.max(coordinates[1], maxX), math.max(coordinates[2], maxY)
 
+       -- finally update table with newly created vertex
        table.insert(vertices, vertex)
      end
 
@@ -295,8 +293,6 @@ else
    CreateVertex(mesh, MakeVec(v3.x, v3.y, zCoordinate), rectIndex)
    CreateVertex(mesh, MakeVec(v4.x, v4.y, zCoordinate), rectIndex)
    ClearSelection(mesh)
-
-
 
    --------------------------------------------------------------------------------
    --- rectangle boundary                                                       ---
@@ -419,7 +415,7 @@ else
    --------------------------------------------------------------------------------
    --- assign grid name                                                         ---
    --------------------------------------------------------------------------------
-   write("Saving mesh to file '" .. outputFileName .. "'... ")
+   write("\nSaving mesh to file '" .. outputFileName .. "'... ")
    SaveMesh(mesh, outputFileName)
-   print("done!")
+   write("done!")
 end
