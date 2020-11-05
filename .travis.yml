@@ -49,5 +49,5 @@ before_script:
 script:
     - travis_wait 45 make -j2
     - curl -O "https://raw.githubusercontent.com/NeuroBox3D/ProMeshScripts/master/polygonal_mesh_from_txt.lua"
-    - ../bin/ugshell -ex polygonal_mesh_from_txt.lua -inputFolder data -outputFileName test.ugx
+    - ../bin/ugshell -ex polygonal_mesh_from_txt.lua -inputFolder ../../data -outputFileName test.ugx
     - file test.ugx
